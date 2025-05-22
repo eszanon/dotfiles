@@ -10,6 +10,6 @@ do
 done
 popd
 
-pushd ./work
-./stow
-popd
+# pushd ./work
+# ./install
+# popd

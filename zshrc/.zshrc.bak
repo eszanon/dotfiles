@@ -1,0 +1,550 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+#!/bin/bash
+export LANG="en_US.UTF-8"
+
+# Path to your oh-my-zsh installation.
+ZSH_THEME="powerlevel10k/powerlevel10k"
+POWERLEVEL10K_MODE="nerdfont-complete"
+
+POWERLEVEL9K_CUSTOM_ICON="echo"
+# POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context aws kubecontext dir vcs)
+POWERLEVEL9K_LEFT_PROMPT_ELEMENTS=(context kubecontext dir)
+POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(vcs)
+
+POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
+POWERLEVEL9K_SHORTEN_DELIMITER=""
+POWERLEVEL9K_SHORTEN_STRATEGY="truncate_from_right"
+# POWERLEVEL9K_DISABLE_RPROMPT=false
+# POWERLEVEL9K_PROMPT_ON_NEWLINE=true
+# POWERLEVEL9K_MULTILINE_LAST_PROMPT_PREFIX="▶ "
+# POWERLEVEL9K_MULTILINE_FIRST_PROMPT_PREFIX=""
+
+#default editor
+export REACT_EDITOR=code
+
+
+. "$HOME/.asdf/asdf.sh"
+# . ~/.asdf/plugins/golang/set-env.zsh
+
+alias go-reshim='asdf reshim golang && export GOROOT="$(asdf where golang)/go/"'
+export NODEROOT=$(asdf where nodejs)
+export JAVA_HOME=$(asdf where java)
+export PATH=$PATH:$(asdf where golang)/packages/bin
+# export KUBE_CONFIG_PATH="${HOME}/.kube/config"
+
+# NODE_DIR=$(asdf where nodejs)
+# NPM_DIR=$NODE_DIR/.npm
+# export PATH=$NPM_DIR/bin:$PATH
+
+# Quick find
+f() {
+    echo "sudo find / -iname \"*$1*\""
+    sudo find / -iname "*$1*"
+}
+
+
+subnetips() {
+    local SUBNET_MASK=${1:-"platform-vpc-private"}
+    aws ec2 describe-subnets | jq -c '.Subnets[] | select(.MapPublicIpOnLaunch == false) | .AvailableIpAddressCount' | awk '{sum+=$0} END{print sum}'
+}
+
+kbl() {
+    local SERVICE_NAME=$1
+    local SEQUENCE=$2
+    local POD=$(kubectl get pods -l 'app.kubernetes.io/name='$SERVICE_NAME'' --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}' | sed ''${SEQUENCE}'q;d')
+    kubectl logs -f --tail 100 $POD $SERVICE_NAME
+}
+
+kbtop() {
+    local NAMESPACE=${1:-default}
+    local ORDER=${2:-2}
+    local TYPE=${3:-pods}
+    echo 'getting top '${TYPE}' by CPU in '$NAMESPACE' namespace'
+    watch -n 3 'kubectl top '$TYPE' -n '$NAMESPACE' --no-headers '${4}' | sort --reverse --key '$ORDER' --numeric'
+}
+
+ktopnode() {
+    local node=$1
+    kubectl get pod --field-selector=status.phase=Running --all-namespaces -o=json | jq --arg node $node --argjson top "$(kubectl top pod --all-namespaces --no-headers | jq --raw-input '[split(" ")[] | select(length > 0)] | { name: .[1], cpu: .[2], mem: .[3] }' | jq -cMs)" '[.items[] | { node: .spec.nodeName, pod: . }] | [group_by(.node)[] | { node: .[0].node, pods: [.[].pod | { name: .metadata.name, namespace: .metadata.namespace, usage: ( .metadata.name as $name | $top[] | select(.name == $name) | del(.name) ) }]}][] | select(.node == $node)' | jq -r '(["NAMESPACE","NAME","CPU","MEM"] | (., map(length*"-"))), (.pods[] | [.namespace,.name,.usage.cpu,.usage.mem]) | @tsv' | column -t
+}
+
+
+# svclogs
+svclogs() {
+    local SERVICE_NAME=$1
+    local FLAGS=$2
+
+    kubectl logs $FLAGS $(kubectl get pods --no-headers -l app.kubernetes.io/name=$SERVICE_NAME | cut -d' ' -f1) -c $SERVICE_NAME
+}
+
+qrcode() {
+    hash qrcode-terminal 2>/dev/null || {
+        echo >&2 "Node qrcode-terminal it's not installed. Run npm install -g qrcode-terminal.  Aborting."
+        return 1
+    }
+    qrcode-terminal $1
+}
+
+upd() {
+    sudo apt-get update && sudo apt-get upgrade && systemd-analyze time
+}
+
+untilquit() {
+    while c=$(pgrep -c -x ${1}); do echo -n "\r${c} ${1} processes remaining." && sleep 2; done
+    echo
+}
+
+dirsize() {
+    du -hs $* | sort -h
+}
+
+morning() {
+    google-chrome https://news.ycombinator.com https://www.reddit.com https://arstechnica.com/ https://feedly.com/i/my https://www.folha.com.br https://www.estadao.com.br https://br.investing.com/ https://mail.google.com/mail/u/1 https://mail.google.com/mail/u/0 --new-window
+}
+
+# Linux version
+# Use this script to pipe in/out of the clipboard
+#
+# Usage: someapp | clipboard     # Pipe someapp's output into clipboard
+#        clipboard | someapp     # Pipe clipboard's content into someapp
+#
+clipboard() {
+    if command -v xclip 1>/dev/null; then
+        if [[ -p /dev/stdin ]]; then
+            # stdin is a pipe
+            # stdin -> clipboard
+            xclip -i -selection clipboard
+        else
+            # stdin is not a pipe
+            # clipboard -> stdout
+            xclip -o -selection clipboard
+        fi
+    else
+        echo "Remember to install xclip"
+    fi
+}
+
+killp () {
+    if [ -z "$1" ]; then
+    echo "Usage: $0 <port>"
+    exit 1
+    fi
+
+    PORT=$1
+
+    # Find the PID of the process using the specified port
+    PID=$(lsof -t -i:$PORT)
+
+    if [ -z "$PID" ]; then
+    echo "No process found running on port $PORT"
+    exit 1
+    fi
+
+    # Kill the process
+    kill -9 $PID
+
+    echo "Process $PID running on port $PORT has been killed"
+}
+
+
+# use ctrl+s to search in pet command tool
+function pet-select() {
+  BUFFER=$(pet search --query "$LBUFFER")
+  CURSOR=$#BUFFER
+  zle redisplay
+}
+
+
+bindkey '^s' pet-select
+
+
+alias 'du=dirsize'
+alias 'python=python3'
+
+#some SECURITY alias
+alias pk='kill -9'
+alias mv='mv -i'
+alias cp='cp -i'
+alias rm='rm -i'
+alias df='df -h'
+
+#terragrunt alias
+alias tg='terragrunt'
+
+#watson alias
+alias ws='watson stop'
+alias wss='watson start'
+alias we='watson edit'
+alias wa='watson aggregate'
+alias wl='watson log'
+
+#some k8s alias
+alias knet='kubectl run tmp-shell --rm -i --tty --image nicolaka/netshoot'
+alias konf="kubectl config-registry"
+alias k='kubectl '
+alias ksys='kubectl -n kube-system'
+alias kall='kubectl get all --all-namespaces'
+alias kbcurl='kubectl run --generator=run-pod/v1 curl-yep --image=radial/busyboxplus:curl -i --tty --rm'
+alias kbsvcs='kubectl get serviceentry,gateway,virtualservice,destinationrule,envoyfilter,ingress'
+kby() {
+    kubectl get $1 -o yaml
+}
+alias ms='minikube start'
+alias mss='minikube stop'
+
+#some cool alias
+alias 'gt=git for-each-ref --sort=creatordate --format "%(refname:short)%09%09%(creatordate)" refs/tags  | tail -10'
+alias 'grep=grep --colour --devices=skip'
+alias 'tf=tail -F'
+alias 'ga=git add'
+alias 'gs=git status -s -b --show-stash'
+alias 'gpl=git pull'
+alias 'gp=git push'
+# alias 'gt=git tag'
+alias 'gf=git fetch --all --progress'
+alias 'gl=git log --graph --abbrev-commit --pretty=oneline --decorate'
+alias 'drma=docker rm -f $(docker ps -aq)'
+alias 'psgrep=ps aux | grep '
+alias 'gohan=go run'
+alias 'pwd=pwd && pwd | clipboard'
+
+# alias pf="fzf --preview='less {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+alias pf="fzf --preview='batcat --color=always --style=numbers {}' --bind shift-up:preview-page-up,shift-down:preview-page-down"
+alias stree="tree -d -L 2"
+
+# Typing errors...
+# alias 'cd..=cd ..'
+# alias '.=cd ..'
+
+# Get the logs of the first istio-ingressgateway pod
+# Shows what happens with incoming requests and possible errors
+alias igl='kubectl -n istio-system logs -f $(kubectl -n istio-system get pods --selector app=istio-ingressgateway -o=jsonpath="{.items[0].metadata.name}") --tail=300'
+
+# Get the logs of the first istio-pilot pod
+# Shows issues with configurations or connecting to the Envoy proxies
+alias ipl='kubectl -n istio-system logs $(kubectl -n istio-system get pods
+-L=pilot -o=jsonpath="{.items[0].metadata.name}") discovery --tail=300'
+
+alias util='kubectl get nodes | grep internal | awk '\''{print $1}'\'' | xargs -I {} sh -c '\''echo   {} ; kubectl describe node {} | grep Allocated -A 5 | grep -ve Event -ve Allocated -ve percent -ve -- ; echo '\'''
+alias cpualloc="util | grep % | awk '{print \$1}' | awk '{ sum += \$1 } END { if (NR > 0) { result=(sum**4000); printf result/NR \"%\n\" } }'"
+alias memalloc='util | grep % | awk '\''{print $3}'\'' | awk '\''{ sum += $1 } END { if (NR > 0) { result=(sum*100)/(NR*1600); printf result/NR "%\n" } }'\'''
+
+plugins=(asdf sudo npm git git-flow yarn aws helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify kind)
+
+export ZSH=~/.oh-my-zsh
+source $ZSH/oh-my-zsh.sh
+
+
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# source ~/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Configure kubectl krew
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+
+# append completions to fpath
+fpath=(${ASDF_DIR}/completions $fpath)
+# initialise completions with ZSH's compinit
+autoload -Uz compinit && compinit
+
+
+NAMESPACE="default"
+
+kalln() {
+
+    RESOURCES=("clusters" "mgkclusters" "machinedeployments" "machines" "mgkmachines"  "machinesets" "kubeadmcontrolplanetemplates" "kubeadmcontrolplanes" "openstackclusters" "openstackclustertemplates" "openstackmachines" "openstackmachinetemplates")
+    for r in ${RESOURCES[@]}
+    do
+        echo $r
+        kubectl get $r -n $NAMESPACE
+    done
+}
+
+mgkall() {
+
+    RESOURCES=("clusters" "machinedeployments" "machines"  "machinesets" "kubeadmcontrolplanetemplates" "kubeadmcontrolplanes" "mgkclusters" "mgkclustertemplates" "mgkmachines" "mgkmachinetemplates")
+    for r in ${RESOURCES[@]}
+    do
+        echo $r
+        kubectl get $r -n $NAMESPACE
+    done
+}
+
+#usage:
+# se (connect to pre-prod cluster)
+# se p (connect to prod cluster)
+# se pp capi (connect to pre-prod capi cluster)
+# se p capi (connect to prod capi cluster)
+se() {
+    local REGION="se1"
+    connect_cluster $REGION $1 $2 $3
+}
+
+ne() {
+    local REGION="ne1"
+    connect_cluster $REGION $1 $2 $3
+}
+
+connect_cluster() {
+    local REGION=${1:-"se1"}
+    local ENV="pre-prod"
+    local CLUSTER=""
+    local CMD="KUBECONFIG=~/Documents/kubeconfigs/"
+
+    # Check if $1 is "p" and set ENV accordingly
+    if [ "$2" = "p" ]; then
+        ENV="prod"
+    fi
+
+    if [ "$2" = "d" ]; then
+        ENV="dev-qa"
+    fi
+
+    # Check if $2 is "capi" and set CLUSTER accordingly
+    if [ "$3" = "capi" ]; then
+        CLUSTER="-capi"
+    fi
+    
+    CMD="${CMD}${ENV}${CLUSTER}-${REGION}.yaml"
+
+    clear
+    echo "\n\n"
+    echo "=================================================="
+    echo "============== CONNECTING TO ====================="
+    
+    # Check if $CLUSTER is not empty to echo
+    if [ -n "$CLUSTER" ]; then
+        echo "============ $(echo $ENV | tr '[:lower:]' '[:upper:]') | $(echo $REGION | tr '[:lower:]' '[:upper:]') | $(echo "${CLUSTER//-/}" | tr '[:lower:]' '[:upper:]') ==================="
+    else
+        echo "============== $(echo $ENV | tr '[:lower:]' '[:upper:]') | $(echo $REGION | tr '[:lower:]' '[:upper:]') ===================="
+    fi
+    
+    if [[ "$*" == *"--k9s"* ]]; then
+        CMD="${CMD} k9s"
+        echo "============== OPENING K9S ======================="
+        echo "\n\n$CMD"
+        sleep 2
+    else
+        CMD="export ${CMD}"
+        echo "\n\n$CMD"
+    fi
+
+    echo "\n\n"
+    eval "$CMD"
+}
+
+konnect() {
+
+    if ! command -v fzf &> /dev/null; then
+        echo "fzf could not be found, please install it first."
+        echo "You can install it by running: sudo apt-get install fzf"
+        return 1
+    fi
+
+    # Get namespaces where a Cluster exists
+    namespaces=$(kubectl get secrets -A -o json | jq -r '.items[] | select(.metadata.name | endswith("kubeconfig")) | .metadata.namespace' | uniq | fzf --prompt="Select Namespace: ")
+    if [ -z "$namespaces" ]; then
+        echo "No namespace selected. Exiting."
+        return 1
+    fi
+    echo "Selected tenant namespace: $namespaces"
+
+    # Get clusters
+    clusters=$(kubectl get secrets -n $namespaces -o json | jq -r '.items[] | select(.metadata.name | endswith("kubeconfig")) | .metadata.name' | fzf --prompt="Select Cluster: ")
+    if [ -z "$clusters" ]; then
+        echo "No cluster selected. Exiting."
+        return 1
+    fi
+    echo "Selected cluster kubeconfig: $clusters"
+
+    # Get kubeconfig
+    kubeconfig_dir=~/Documents/kubeconfigs/users/$namespaces
+    mkdir -p "$kubeconfig_dir"
+    kubeconfig_path="$kubeconfig_dir/$clusters"
+    
+    if [ -f "$kubeconfig_path" ]; then
+        echo -n "\n\nThis kubeconfig already exists. Do you want to replace it? (y/n): "
+        read choice
+        if [ "$choice" != "y" ]; then
+            echo "Using existing kubeconfig."
+        else
+            kubectl get secret $clusters -n $namespaces -o json | jq -r '.data.value' | base64 -d > "$kubeconfig_path"
+            echo "\n\nKubeconfig saved to $kubeconfig_path"
+            chmod 600 "$kubeconfig_path"
+        fi
+    else
+        kubectl get secret $clusters -n $namespaces -o json | jq -r '.data.value' | base64 -d > "$kubeconfig_path"
+        echo "\n\nKubeconfig saved to $kubeconfig_path"
+        chmod 600 "$kubeconfig_path"
+    fi
+
+    export KUBECONFIG="$kubeconfig_path"
+    echo "export KUBECONFIG=$kubeconfig_path"
+
+    sleep 2
+    clear
+    echo -e "Cluster:\t$(kubectl config view -o json | jq -r '.contexts[] | select(.name == "'$(kubectl config current-context)'") | .context.cluster')"
+    echo -e "User:\t\t$(kubectl config view -o json | jq -r '.contexts[] | select(.name == "'$(kubectl config current-context)'") | .context.user')"
+
+    echo -e "\n\nTrying to connect to cluster..."
+    kubectl cluster-info --request-timeout='5s'
+}
+
+kssh() {
+    if ! command -v fzf &> /dev/null; then
+        echo "fzf could not be found, please install it first."
+        echo "You can install it by running: sudo apt-get install fzf"
+        return 1
+    fi
+
+    if ! command -v jq &> /dev/null; then
+        echo "jq could not be found, please install it first."
+        echo "You can install it by running: sudo apt-get install jq"
+        return 1
+    fi
+
+    # Get namespaces where an SSH key secret exists
+    namespaces=$(kubectl get secrets -A -o json | jq -r '.items[] | select(.metadata.name | startswith("ssh-key-")) | .metadata.namespace' | uniq | fzf --prompt="Select Namespace: ")
+    if [ -z "$namespaces" ]; then
+        echo "No namespace selected. Exiting."
+        return 1
+    fi
+    echo "Selected tenant namespace: $namespaces"
+
+    # Get SSH key secrets
+    key_secret=$(kubectl get secrets -n $namespaces -o json | jq -r '.items[] | select(.metadata.name | startswith("ssh-key-")) | .metadata.name' | fzf --prompt="Select SSH Key Secret: ")
+    if [ -z "$key_secret" ]; then
+        echo "No SSH key secret selected. Exiting."
+        return 1
+    fi
+    echo "Selected SSH key secret: $key_secret"
+
+    # Get SSH key and save it
+    ssh_keys_dir=~/Documents/ssh-keys/$namespaces
+    mkdir -p "$ssh_keys_dir"
+    key_path="$ssh_keys_dir/$key_secret"
+    
+    if [ -f "$key_path" ]; then
+        echo -n "\n\nThis SSH key already exists. Do you want to replace it? (y/n): "
+        read choice
+        if [ "$choice" != "y" ]; then
+            echo "Using existing SSH key."
+        else
+            # Remove existing file if we have permission issues
+            [ -f "$key_path" ] && rm -f "$key_path"
+
+            # Extract and save key with proper permissions
+            kubectl get secret $key_secret -n $namespaces -o json | jq -r '.data."ssh-privatekey"' | base64 -d > "$key_path"
+            echo "\n\nSSH key saved to $key_path"
+            chmod 400 "$key_path"
+        fi
+    else
+        kubectl get secret $key_secret -n $namespaces -o json | jq -r '.data."ssh-privatekey"' | base64 -d > "$key_path"
+        echo "\n\nSSH key saved to $key_path"
+        chmod 400 "$key_path"
+    fi
+
+    # Get MgkClusters and extract IP
+    cluster=$(kubectl get mgkclusters -n $namespaces -o json | jq -r '.items[].metadata.name' | fzf --prompt="Select MgkCluster: ")
+    if [ -z "$cluster" ]; then
+        echo "No cluster selected. Exiting."
+        return 1
+    fi
+    
+    host_ip=$(kubectl get mgkclusters -n $namespaces $cluster -o jsonpath='{.spec.controlPlaneEndpoint.host}')
+    if [ -z "$host_ip" ]; then
+        echo "Could not extract host IP from the selected cluster. Exiting."
+        return 1
+    fi
+    
+    echo "Connecting to $host_ip using SSH key from $key_path"
+    ssh -i "$key_path" ubuntu@$host_ip
+}
+
+
+
+#source <(mgc completion zsh)
+
+# Generated for envman. Do not edit.
+[ -s "$HOME/.config/envman/load.sh" ] && source "$HOME/.config/envman/load.sh"
+export GOPRIVATE=github.com/MagaluCloud/magalu
+
+[ -f ~/.kubectl_aliases ] && source ~/.kubectl_aliases
+# function kubectl() { echo "+ kubectl $@">&2; command kubectl $@; }
+
+eval $(thefuck --alias)
+
+# MGC related configurations
+export TENANT_ID=85d817f5-a92e-4284-97b2-cc8a494514c9
+export TENANT_ID_PROD=16001901-24c7-49fe-b11e-21faf5677a2e
+export TENANT_ID_K8S=c381565e-a0ed-4053-86dc-becb6622b39f
+export TENANT_ID_K8S_DEV=d0025635-ec9d-4a3c-802b-d74f9f275a39
+
+# Show tenant information with color and improved formatting
+tnt() {
+    local RED='\033[0;31m'
+    local GREEN='\033[0;32m'
+    local YELLOW='\033[0;33m'
+    local BLUE='\033[0;34m'
+    local NC='\033[0m' # No Color
+    
+    echo "╔═════════════════════════════════════════════════════════════════════════════════════════╗"
+    echo "║                               TENANT INFORMATION                                        ║"
+    echo "╠═════════════╦══════════════════════════════════════╦════════════════════════════════════╣"
+    echo "║ ${BLUE}ENVIRONMENT${NC} ║            ${BLUE}TENANT ID${NC}                 ║           ${BLUE}VARIABLE${NC}                 ║"
+    echo "╠═════════════╬══════════════════════════════════════╬════════════════════════════════════╣"
+    printf "║ ${GREEN}pre-prod${NC}    ║ %-36s ║ \$TENANT_ID                         ║\n" "$TENANT_ID"
+    printf "║ %-11s ║ %-36s ║ %-34s ║\n" " " " " " "
+    printf "║ ${YELLOW}K8S DEV${NC}     ║ %-36s ║ \$TENANT_ID_K8S_DEV                 ║\n" "$TENANT_ID_K8S_DEV"
+    printf "║ ${RED}prod${NC}        ║ %-36s ║ \$TENANT_ID_PROD                    ║\n" "$TENANT_ID_PROD"
+    printf "║ ${RED}IAAS.K8S${NC}    ║ %-36s ║ \$TENANT_ID_K8S                     ║\n" "$TENANT_ID_K8S"
+    echo "╚═════════════╩══════════════════════════════════════╩════════════════════════════════════╝"
+    
+    # Display current context info if available
+    if command -v kubectl &>/dev/null; then
+        local current_context=$(kubectl config current-context 2>/dev/null || echo "None")
+        echo -e "\n${BLUE}Current Context:${NC} $current_context"
+    fi
+}
+
+
+export GITLAB_PERSONAL_TOKEN="donotsavemejyxfhSqctzLGn3AVAYbN"
+export GOPRIVATE=gitlab.luizalabs.com
+
+autoload -Uz colors && colors
+
+# function set_terminal_bg {
+#     local context=$(kubectl config current-context 2>/dev/null)
+    
+#     if [[ $context == "pre-prod"* ]]; then
+#         echo -ne "\033]11;#161636\007"  # Fundo verde
+#     elif [[ $context == "prod"* ]]; then
+#         echo -ne "\033]11;#361F1F\007"  # Fundo vermelho
+#     else
+#         echo -ne "\033]11;#222225\007" # Fundo original
+#     fi
+# }
+
+# autoload -Uz add-zsh-hook
+# add-zsh-hook precmd set_terminal_bg  # Executa antes de cada prompt
+
+eval "$(zoxide init --cmd cd zsh)"
+
+
+if command -v eza >/dev/null 2>&1; then
+    alias l='eza -ll --color=always --group-directories-first'
+    alias ls='eza -al --header --icons --group-directories-first'
+elif command -v exa >/dev/null 2>&1; then
+    alias l='exa -ll --color=always --group-directories-first'
+    alias ls='exa -al --header --icons --group-directories-first'
+fi
+alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' external ip'"
