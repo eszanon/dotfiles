@@ -86,14 +86,8 @@ format = "[ $path ]($style)"
 # truncation_symbol = "…/"
 
 [directory.substitutions]
-"Documents" = "󰈙 "
-"Downloads" = " "
-"Music" = "󰝚 "
+"~/Downloads" = " "
 "Pictures" = " "
-"Developer" = "󰲋 "
-
-# [character]
-# success_symbol = '[➜](bold green)'
 
 # [git_branch]
 # symbol = ""
@@ -102,6 +96,7 @@ format = "[ $path ]($style)"
 
 [git_branch]
 symbol = ""
+# style = "bg:teal"
 # format =  '[$symbol $branch(:$remote_branch)]($style)'
 
 [git_status]
@@ -114,59 +109,59 @@ disabled = true
 
 [nodejs]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
 
 [c]
 symbol = " "
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
 
 [rust]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](fg:base bg:teal)]($style)'
 
 [golang]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [php]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [java]
 symbol = " "
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [kotlin]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [haskell]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [python]
 symbol = ""
-style = "bg:teal"
+# style = "bg:teal"
 format = '[[ $symbol( $version) ](teal)]($style)'
 
 [docker_context]
 disabled = true
 symbol = ""
-style = "bg:mantle"
+# style = "bg:mantle"
 format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)'
 
 [time]
 disabled = true
 time_format = "%R"
-style = "bg:peach"
+# style = "bg:peach"
 format = '[[  $time ](fg:mantle bg:purple)]($style)'
 
 [kubernetes]
@@ -175,9 +170,9 @@ disabled = false
 
 format = '[$symbol$context( \($namespace\))]($style) '
 contexts = [
-  { context_pattern = "arn:aws:eks:us-west-2:577926974532:cluster/zd-pvc-omer", style = "green", context_alias = "omerxx", symbol = " " },
+  { context_pattern = "k3d-management-cluster", style = "green", context_alias = "[local] k3d", symbol = "" },
   { context_pattern = "capi-csre-plat-preprod-br-se1-yel-1", style = "yellow", context_alias = "[undercloud] preprod|dev-qa", symbol = "" },  
-  { context_pattern = "capi-csre-plat-prod-br-se1-yel-1", style = "peach", context_alias = "[undercloud] PROD", symbol = " " },
+  { context_pattern = "capi-csre-plat-prod-br-se1-yel-1", style = "red", context_alias = "[undercloud] PROD", symbol = " " },
 ]
 
 [line_break]

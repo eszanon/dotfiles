@@ -1,6 +1,7 @@
 #!/usr/bin/env zsh
+export XDG_CONFIG_HOME=$HOME/.config
 if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="atuin,nvim,personal,tmux,zshrc,starship"
+  STOW_FOLDERS="personal,work,atuin,nvim,tmux,zshrc,starship,wezterm,k9s"
 fi
 
 if [[ -z $DOTFILES ]]; then

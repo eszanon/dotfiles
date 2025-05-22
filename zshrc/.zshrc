@@ -8,12 +8,14 @@ autoload bashcompinit && bashcompinit
 autoload -Uz compinit
 compinit
 
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# Example aliases
+# alias zshconfig="mate ~/.zshrc"
+# alias ohmyzsh="mate ~/.oh-my-zsh"
+source ~/.zsh_profile
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
+# to know which specific one was loaded` run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
 ZSH_THEME="robbyrussell"
 
@@ -36,7 +38,7 @@ export EDITOR=nvim
 . "$HOME/.asdf/asdf.sh"
 . "$HOME/.atuin/bin/env"
 
-alias cat=bat
+# alias cat=bat
 alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' external ip'"
 
 # Git
@@ -95,18 +97,18 @@ alias kcns='kubectl config set-context --current --namespace'
 # VI Mode!!!
 # bindkey jj vi-cmd-mode
 
-# Eza
-alias l="eza -l --icons --git -a"
-alias lt="eza --tree --level=2 --long --icons --git"
-alias ltree="eza --tree --level=2  --icons --git"
-
-
 
 ### FZF ###
 # export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# Path to your oh-my-zsh installation.
+export ZSH="$HOME/.oh-my-zsh"
+plugins=(asdf sudo npm git yarn aws helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify kind)
+source $ZSH/oh-my-zsh.sh
 
+# Configure kubectl krew
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 
 # navigation
 cx() { cd "$@" && l; }
@@ -114,7 +116,10 @@ fcd() { cd "$(find . -type d -not -path '*/.*' | fzf)" && l; }
 f() { echo "$(find . -type f -not -path '*/.*' | fzf)" | pbcopy }
 fv() { nvim "$(find . -type f -not -path '*/.*' | fzf)" }
 
-
+# Eza
+alias l="eza -l --icons --git -a"
+alias lt="eza --tree --level=2 --long --icons --git"
+alias ltree="eza --tree --level=2  --icons --git"
 
 # use ctrl+s to search in pet command tool
 function pet-select() {
@@ -127,16 +132,7 @@ if [ -t 0 ]; then
   stty -ixon
 fi
 
-
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-source ~/.config/zshrc/.zsh_profile
-
-plugins=(asdf sudo npm git git-flow yarn aws helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify kind)
-source $ZSH/oh-my-zsh.sh
-
-
 eval "$(zoxide init --cmd cd zsh)"
-eval "$(atuin init zsh)"
-eval "$(kubectl completion zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
+# Set up fzf key bindings and fuzzy completion
+source <(fzf --zsh)
