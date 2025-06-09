@@ -3,8 +3,10 @@ export XDG_CONFIG_HOME=$HOME
 VIM="nvim"
 
 PERSONAL=$XDG_CONFIG_HOME/personal
-source $PERSONAL/.env
 for i in `find -L $PERSONAL`; do
+if [ -f "$i/.env" ]; then
+        source "$i/.env"
+    fi
     source $i
 done
 

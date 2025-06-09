@@ -1,11 +1,11 @@
 #!/usr/bin/env zsh
-export XDG_CONFIG_HOME=$HOME/.config
+export XDG_CONFIG_HOME="$HOME/.config"
 if [[ -z $STOW_FOLDERS ]]; then
   STOW_FOLDERS="personal,work,atuin,nvim,tmux,zshrc,starship,wezterm,k9s"
 fi
 
 if [[ -z $DOTFILES ]]; then
-    DOTFILES=$HOME/dotfiles
+    DOTFILES="$HOME/dotfiles"
 fi
 
-STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install
+STOW_FOLDERS="$STOW_FOLDERS" DOTFILES="$DOTFILES" "$DOTFILES/install"

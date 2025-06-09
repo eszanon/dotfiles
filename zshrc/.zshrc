@@ -28,7 +28,7 @@ ZSH_THEME="robbyrussell"
 # bindkey '^s' pet-select
 
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/.config/starship/starship.toml
+export STARSHIP_CONFIG=~/.config/starship.toml
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
@@ -103,8 +103,8 @@ alias kcns='kubectl config set-context --current --namespace'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Path to your oh-my-zsh installation.
+plugins=(asdf sudo npm git yarn helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify)
 export ZSH="$HOME/.oh-my-zsh"
-plugins=(asdf sudo npm git yarn aws helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify kind)
 source $ZSH/oh-my-zsh.sh
 
 # Configure kubectl krew

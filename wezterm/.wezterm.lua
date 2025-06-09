@@ -12,8 +12,8 @@ return {
 	enable_tab_bar = false,
 	font_size = 13.0,
 	font = wezterm.font('JetBrains Mono'),	
-	window_background_opacity = 0.97,
-	window_decorations = 'RESIZE',	
+	-- window_background_opacity = 0.97,
+	window_decorations = 'NONE',
 	keys = {
 		{
 			key = 'q',
