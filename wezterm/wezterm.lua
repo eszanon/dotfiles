@@ -11,7 +11,12 @@ return {
 	color_scheme = 'Catppuccin Mocha',
 	enable_tab_bar = false,
 	font_size = 13.0,
-	font = wezterm.font('JetBrains Mono'),	
+	font = wezterm.font_with_fallback {
+		'JetBrains Mono',
+		'Noto Color Emoji',  -- For emoji support
+		'Symbols Nerd Font', -- For programming symbols
+		'DejaVu Sans Mono',  -- Fallback for missing chars
+	},
 	-- window_background_opacity = 0.97,
 	window_decorations = 'NONE',
 	keys = {

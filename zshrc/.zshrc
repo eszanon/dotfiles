@@ -32,7 +32,6 @@ export STARSHIP_CONFIG=~/.config/starship.toml
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
-
 export EDITOR=nvim
 
 . "$HOME/.asdf/asdf.sh"
@@ -40,6 +39,9 @@ export EDITOR=nvim
 
 # alias cat=bat
 alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' external ip'"
+alias v="nvim"
+alias vi="nvim"
+alias vim="nvim"
 
 # Git
 alias gc="git commit -m"
