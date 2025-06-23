@@ -177,6 +177,7 @@ contexts = [
 ]
 
 [aws]
+disabled = true
 profile_aliases = { "platform-qa" = "qa",  "platform-prod" = "prod" }
 
 [lua]
