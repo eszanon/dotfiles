@@ -42,6 +42,7 @@ alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' extern
 alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
+alias t="tmux"
 
 # Git
 alias gc="git commit -m"
@@ -59,6 +60,7 @@ alias ga='git add -p'
 alias gcoall='git checkout -- .'
 alias gr='git remote'
 alias gre='git reset'
+alias lg="lazygit"
 
 # Docker
 alias dco="docker compose"
