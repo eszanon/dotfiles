@@ -11,7 +11,7 @@ k9s:
     logoless: false
     crumbsless: false
     reactive: false
-    noIcons: false
+    noIcons: true
     defaultsToFullScreen: true
     skin: catppuccin-mocha-transparent
   skipLatestRevCheck: false
