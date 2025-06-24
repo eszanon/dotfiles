@@ -1,0 +1,24 @@
+[user]
+  name = "Everton Zanon"
+  email = "eszanon@gmail.com"
+
+[status]
+  branch = true
+  short = true
+  showStash = true
+
+[log]
+  abbrevCommit = true
+  graphColors = true
+
+[pull]
+  rebase = true
+
+[submodule]
+  fetchJobs = 16
+
+[color "branch"]
+  current  = magenta
+  remote   = yellow
+  upstream = green
+  plain    = blue
