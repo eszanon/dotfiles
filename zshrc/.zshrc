@@ -28,7 +28,7 @@ ZSH_THEME="robbyrussell"
 # bindkey '^s' pet-select
 
 eval "$(starship init zsh)"
-export STARSHIP_CONFIG=~/.config/starship.toml
+export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
 
 # You may need to manually set your language environment
 export LANG=en_US.UTF-8
