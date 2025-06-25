@@ -96,7 +96,7 @@ format = "[ $path ]($style)"
 
 [git_branch]
 symbol = ""
-style = "bg:teal"
+style = "peach"
 format = '[$symbol $branch(:$remote_branch)]($style)'
 
 [git_status]
@@ -169,7 +169,7 @@ symbol = '☸ '
 disabled = false
 format = '[$symbol$context( \($namespace\))]($style) '
 contexts = [
-  { context_pattern = "k3d-management-cluster", style = "green", context_alias = "[local] k3d", symbol = "" },
+  { context_pattern = "k3d-management-cluster", style = "green", context_alias = "k3d", symbol = "" },
   { context_pattern = "capi-csre-plat-preprod-br-se1-yel-1", style = "yellow", context_alias = "[undercloud] preprod|dev-qa", symbol = "" },
   { context_pattern = "capi-csre-plat-prod-br-se1-yel-1", style = "red", context_alias = "[undercloud] PROD", symbol = " " },
   { context_pattern = "eks-prod", style = "red", context_alias = "PROD", symbol = " " },
@@ -177,7 +177,7 @@ contexts = [
 ]
 
 [aws]
-disabled = false
+disabled = true
 profile_aliases = { "platform-qa" = "qa", "platform-prod" = "prod" }
 
 [lua]
