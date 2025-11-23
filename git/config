@@ -1,24 +1,31 @@
-[user]
-  name = "Everton Zanon"
-  email = "eszanon@gmail.com"
+# See https://git-scm.com/docs/git-config
 
-[status]
-  branch = true
-  short = true
-  showStash = true
-
-[log]
-  abbrevCommit = true
-  graphColors = true
-
+[alias]
+	co = checkout
+	br = branch
+	ci = commit
+	st = status
+[init]
+	defaultBranch = master
 [pull]
-  rebase = true
-
-[submodule]
-  fetchJobs = 16
-
-[color "branch"]
-  current  = magenta
-  remote   = yellow
-  upstream = green
-  plain    = blue
+	rebase = true 			 # Rebase (instead of merge) on pull
+[push]
+	autoSetupRemote = true   # Automatically set upstream branch on push
+[diff]
+	algorithm = histogram    # Clearer diffs on moved/edited lines
+	colorMoved = plain       # Highlight moved blocks in diffs
+	mnemonicPrefix = true    # More intuitive refs in diff output
+[commit]
+	verbose = true           # Include diff comment in commit message template
+[column]
+	ui = auto 			     # Output in columns when possible
+[branch]
+	sort = -committerdate    # Sort branches by most recent commit first
+[tag]
+	sort = -version:refname  # Sort version numbers as you would expect
+[rerere]
+	enabled = true           # Record and reuse conflict resolutions
+	autoupdate = true        # Apply stored conflict resolutions automatically
+[user]
+	name = eszanon
+	email = eszanon@gmail.com

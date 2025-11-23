@@ -34,8 +34,8 @@ export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
 export LANG=en_US.UTF-8
 export EDITOR=nvim
 
-. "$HOME/.asdf/asdf.sh"
-. "$HOME/.atuin/bin/env"
+# . "$HOME/.asdf/asdf.sh"
+# . "$HOME/.atuin/bin/env"
 
 # alias cat=bat
 alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' external ip'"
@@ -137,6 +137,8 @@ if [ -t 0 ]; then
 fi
 
 eval "$(zoxide init --cmd cd zsh)"
-eval "$(atuin init zsh --disable-up-arrow)"
+# eval "$(atuin init zsh --disable-up-arrow)"
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
+eval "$(~/.local/bin/mise activate zsh)"
+eval "$(/usr/bin/mise activate zsh)"
