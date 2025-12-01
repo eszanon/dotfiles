@@ -3,11 +3,19 @@ local mux = wezterm.mux
 
 wezterm.on('gui-startup', function(cmd)
 	local tab, pane, window = mux.spawn_window(cmd or {})
-	window:gui_window():maximize()
+	-- window:gui_window():maximize()
+	window:gui_window():toggle_fullscreen()
+	pane:send_text('t\n') -- Start tmux session named 'main'
 end)
+
+-- wezterm.on('window-resized', function(window, pane)
+-- 	window:maximize()
+-- end)
+
 
 return {
 	adjust_window_size_when_changing_font_size = false,
+	enable_wayland = false,
 	color_scheme = 'Catppuccin Mocha',
 	enable_tab_bar = false,
 	font_size = 13.0,
@@ -17,7 +25,7 @@ return {
 		'Symbols Nerd Font', -- For programming symbols
 		'DejaVu Sans Mono',  -- Fallback for missing chars
 	},
-	-- window_background_opacity = 0.97,
+	-- window_background_opacity = 0.98,
 	window_decorations = 'NONE',
 	keys = {
 		{

@@ -42,7 +42,7 @@ alias myip="hostname -I | awk '{print $1}'; curl -s ifconfig.me && echo ' extern
 alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
-alias t="tmux"
+alias t="tmux attach || tmux new -s main"
 
 # Git
 alias gc="git commit -m"
@@ -111,8 +111,8 @@ plugins=(asdf sudo npm git yarn helm colorize cp docker docker-compose history-s
 export ZSH="$HOME/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 
-# Configure kubectl krew
-export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+# Configure kubectl krew and local binaries
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$HOME/.local/bin:$HOME/bin:$PATH"
 
 # navigation
 cx() { cd "$@" && l; }
@@ -138,7 +138,15 @@ fi
 
 eval "$(zoxide init --cmd cd zsh)"
 # eval "$(atuin init zsh --disable-up-arrow)"
+eval "$(~/.local/bin/mise activate zsh)"
+
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
-eval "$(~/.local/bin/mise activate zsh)"
-eval "$(/usr/bin/mise activate zsh)"
+
+
+# Source work-related scripts
+for script in $HOME/.config/work/**/*.sh; do
+    if [[ -f "$script" ]]; then
+        source "$script"
+    fi
+done

@@ -21,4 +21,18 @@ return {
       return opts
     end,
   },
+  {
+    "mason-org/mason.nvim",
+    opts = {
+      ensure_installed = {
+        "stylua",
+        "shellcheck",
+        "shfmt",
+        "flake8",
+        "gopls",
+        "gofumpt",
+        "golangci-lint",
+      },
+    },
+  },
 }
