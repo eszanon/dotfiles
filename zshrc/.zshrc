@@ -34,6 +34,17 @@ export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
 export LANG=en_US.UTF-8
 export EDITOR=nvim
 
+# SSH Agent
+if [ -z "$SSH_AUTH_SOCK" ]; then
+   # Check for a currently running instance of the agent
+   RUNNING_AGENT="`ps -ax | grep 'ssh-agent -s' | grep -v grep | wc -l | tr -d '[:space:]'`"
+   if [ "$RUNNING_AGENT" = "0" ]; then
+        # Launch a new instance of the agent
+        ssh-agent -s &> $HOME/.ssh/ssh-agent
+   fi
+   eval `cat $HOME/.ssh/ssh-agent` > /dev/null
+fi
+
 # . "$HOME/.asdf/asdf.sh"
 # . "$HOME/.atuin/bin/env"
 
@@ -136,13 +147,28 @@ if [ -t 0 ]; then
   stty -ixon
 fi
 
+# yazi
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
+
 eval "$(zoxide init --cmd cd zsh)"
 # eval "$(atuin init zsh --disable-up-arrow)"
-eval "$(~/.local/bin/mise activate zsh)"
+eval "$(mise activate zsh)"
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
 
+if ! pgrep -u "$USER" ssh-agent > /dev/null; then
+    ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
+fi
+if [ ! -f "$SSH_AUTH_SOCK" ]; then
+    source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
+fi
 
 # Source work-related scripts
 for script in $HOME/.config/work/**/*.sh; do
@@ -150,3 +176,4 @@ for script in $HOME/.config/work/**/*.sh; do
         source "$script"
     fi
 done
+export PATH="$HOME/.local/bin:$PATH"

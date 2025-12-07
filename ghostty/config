@@ -1,11 +1,11 @@
 # Dynamic theme colors
-config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
+# config-file = ?"~/.config/omarchy/current/theme/ghostty.conf"
 
 # Font
 font-family = "JetBrainsMono Nerd Font"
 font-style = Regular
-font-size = 9
-
+font-size = 14
+background-opacity = 0.6
 # Window
 window-theme = ghostty
 window-padding-x = 14
@@ -14,6 +14,9 @@ confirm-close-surface=false
 resize-overlay = never
 gtk-toolbar-style = flat
 
+# Shell
+command = tmux
+
 # Cursor styling
 cursor-style = "block"
 cursor-style-blink = false
@@ -21,6 +24,9 @@ cursor-style-blink = false
 # Cursor styling + SSH session terminfo
 # (all shell integration options must be passed together)
 shell-integration-features = no-cursor,ssh-env
+
+# Clipboard
+copy-on-select = clipboard
 
 # Keyboard bindings
 keybind = shift+insert=paste_from_clipboard

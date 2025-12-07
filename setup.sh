@@ -2,7 +2,9 @@
 set -e
 
 # Stow dotfiles (adopt existing files into the dotfiles directory)
-stow --adopt .
+# stow --adopt .
+
+stow .
 
 # Create zsh symlinks
 ln -sf $HOME/.config/zshrc/.zshrc $HOME/.zshrc
