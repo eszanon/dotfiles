@@ -2,9 +2,21 @@
 --
 -- Only the bindings that differ from Omarchy 4's defaults live here. These
 -- already match upstream and were dropped instead of being repeated:
--- terminal, tmux, browser (+ private), nautilus (+ cwd), editor, 1Password,
--- Signal, Spotify, cliamp, Docker/lazydocker, YouTube, Google Photos,
--- Google Messages, Grok, X (+ post).
+-- browser (+ private), nautilus (+ cwd), editor, 1Password, Signal, Spotify,
+-- cliamp, Docker/lazydocker, YouTube, Google Photos, Google Messages, Grok,
+-- X (+ post).
+
+-- Terminal -------------------------------------------------------------------
+
+-- Swap Omarchy's two terminal bindings: tmux is the default here, the bare
+-- terminal moves to where tmux used to be. omarchy-launch-terminal-tmux runs
+-- `tmux attach || tmux new -s Work`, so this reattaches instead of piling up a
+-- new session per window. SUPER + CTRL + RETURN still opens herdr.
+hl.unbind("SUPER + RETURN")
+o.bind("SUPER + RETURN", "Terminal (tmux)", { omarchy = "terminal-tmux" })
+
+hl.unbind("SUPER + ALT + RETURN")
+o.bind("SUPER + ALT + RETURN", "Terminal (no tmux)", { omarchy = "terminal" })
 
 -- Applications ---------------------------------------------------------------
 
