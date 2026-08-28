@@ -34,17 +34,6 @@ export STARSHIP_CONFIG=$XDG_CONFIG_HOME/starship/starship.toml
 export LANG=en_US.UTF-8
 export EDITOR=nvim
 
-# SSH Agent
-if [ -z "$SSH_AUTH_SOCK" ]; then
-   # Check for a currently running instance of the agent
-   RUNNING_AGENT="`ps -ax | grep 'ssh-agent -s' | grep -v grep | wc -l | tr -d '[:space:]'`"
-   if [ "$RUNNING_AGENT" = "0" ]; then
-        # Launch a new instance of the agent
-        ssh-agent -s &> $HOME/.ssh/ssh-agent
-   fi
-   eval `cat $HOME/.ssh/ssh-agent` > /dev/null
-fi
-
 # . "$HOME/.asdf/asdf.sh"
 # . "$HOME/.atuin/bin/env"
 
@@ -118,7 +107,7 @@ alias kcns='kubectl config set-context --current --namespace'
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
 # Path to your oh-my-zsh installation.
-plugins=(asdf sudo npm git yarn helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify)
+plugins=(asdf sudo npm git helm colorize cp docker docker-compose history-substring-search golang httpie rsync kubectl zsh-syntax-highlighting zsh-autosuggestions zsh-completions bgnotify)
 export ZSH="$HOME/.oh-my-zsh"
 source $ZSH/oh-my-zsh.sh
 
@@ -166,9 +155,20 @@ source <(fzf --zsh)
 if ! pgrep -u "$USER" ssh-agent > /dev/null; then
     ssh-agent -t 1h > "$XDG_RUNTIME_DIR/ssh-agent.env"
 fi
-if [ ! -f "$SSH_AUTH_SOCK" ]; then
+if [[ -z "$SSH_AUTH_SOCK" ]] && [[ -f "$XDG_RUNTIME_DIR/ssh-agent.env" ]]; then
     source "$XDG_RUNTIME_DIR/ssh-agent.env" >/dev/null
 fi
+
+# Auto-add SSH keys if not already added
+ssh-add -l &>/dev/null
+# if [ $? -eq 1 ]; then
+#     # Find and add all private keys (excluding .pub files and known_hosts)
+#     for key in ~/.ssh/id_* ~/.ssh/*-bitbucket; do
+#         if [[ -f "$key" ]] && [[ ! "$key" == *.pub ]]; then
+#             ssh-add "$key" &>/dev/null
+#         fi
+#     done
+# fi
 
 # Source work-related scripts
 for script in $HOME/.config/work/**/*.sh; do
