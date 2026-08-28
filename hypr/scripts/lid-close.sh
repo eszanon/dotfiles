@@ -18,9 +18,9 @@ if [ "$external_monitors" -gt 0 ]; then
 
     # Disable the laptop monitor
     hyprctl keyword monitor "eDP-1, disable"
-else
+# else
     # No external monitor - just suspend/lock instead of disabling the display
     # You can customize this behavior (e.g., systemctl suspend, or do nothing)
-    echo "No external monitor detected, skipping monitor disable"
-    systemctl suspend
+    # echo "No external monitor detected, skipping monitor disable"
+    # systemctl suspend
 fi
