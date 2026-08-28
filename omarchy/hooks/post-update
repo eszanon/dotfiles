@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Re-stow dotfiles after an Omarchy update.
+#
+# Omarchy migrations (and `omarchy refresh`) replace config files with fresh
+# copies, which silently breaks the stow symlinks back to this repo. This hook
+# adopts those replaced files back into the repo so the links are restored and
+# the incoming upstream changes show up as a reviewable `git diff`.
+#
+# --adopt overwrites repo content with whatever is live, so tracked changes are
+# snapshotted to a tag first. Recover with:
+#   git checkout preadopt-<stamp> -- .
+# (Untracked files are not snapshotted; omarchy never generates those paths.)
+
+set -euo pipefail
+
+DOTFILES="$HOME/projects/github.com/eszanon/dotfiles"
+
+[ -d "$DOTFILES" ] || exit 0
+cd "$DOTFILES"
+
+# `git stash create` prints nothing on a clean tree; guard with `if` so the
+# empty case doesn't trip `set -e` and skip the re-stow entirely.
+backup=$(git stash create) || true
+if [ -n "${backup:-}" ]; then
+  git tag "preadopt-$(date +%Y%m%d-%H%M%S)" "$backup"
+fi
+
+if ! stow --adopt .; then
+  notify-send "Dotfiles not re-stowed" \
+    "stow --adopt failed in $DOTFILES. Re-run it there by hand." || true
+  exit 0
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  notify-send "Dotfiles re-stowed" \
+    "Symlinks restored; upstream changes adopted. Review with git diff." || true
+fi
