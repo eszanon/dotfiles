@@ -217,3 +217,7 @@ tooltip label{
     border-radius: 5px;
     margin: 5px 50px 0px 10px;
 }
+#custom-idle-indicator.active,
+#custom-notification-silencing-indicator.active {
+  color: #a55555;
+}
