@@ -1,0 +1,5 @@
+# herdr grava logs, sockets e estado de sessão ao lado do config.toml.
+# Se o stow "dobrar" este diretório numa máquina nova, nada disso deve ir pro git.
+*
+!.gitignore
+!config.toml

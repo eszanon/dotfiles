@@ -1,0 +1,105 @@
+onboarding = false
+# herdr configuration
+# Keybinds espelhando ~/.config/tmux/tmux.conf (hjkl, splits v/s/|/-, resize, etc.)
+# Prefixo é Ctrl+S (não Ctrl+A como no tmux) para o herdr funcionar aninhado dentro do tmux:
+# o tmux captura Ctrl+A antes, e Ctrl+S passa direto para o pane.
+# Referência: herdr --default-config | https://herdr.dev/docs/config-reference/
+# Aplicar mudanças: herdr server reload-config
+# Ver bindings ativos: prefix+?
+
+[theme]
+name = "catppuccin"
+
+[keys]
+# tmux usa ^A; aqui ^S para não colidir quando o herdr roda dentro do tmux
+prefix = "ctrl+s"
+
+# ---------------------------------------------------------------------------
+# Sessão
+# ---------------------------------------------------------------------------
+detach = ["prefix+ctrl+d", "prefix+q"]     # tmux: bind ^D detach
+reload_config = "prefix+shift+r"           # tmux: bind R source-file
+settings = "prefix+shift+s"                # movido de prefix+s (usado para split)
+help = "prefix+?"
+
+# ---------------------------------------------------------------------------
+# Tabs (equivalente a "windows" do tmux)
+# ---------------------------------------------------------------------------
+new_tab = "prefix+ctrl+c"                  # tmux: bind ^C new-window
+rename_tab = "prefix+r"                    # tmux: bind r rename-window
+next_tab = "prefix+n"                      # tmux default: n next-window
+previous_tab = "prefix+ctrl+p"             # movido de prefix+p (usado para popup/floax)
+switch_tab = "prefix+1..9"                 # tmux default: select-window 1..9
+close_tab = "prefix+shift+x"
+# tmux: bind ^A last-window — sem equivalente: no herdr prefix+prefix é reservado
+# (envia um Ctrl+A literal ao pane, como o send-prefix do tmux). last_pane fica desligado.
+# last_pane = ""
+
+# tmux: bind w / ^W list-windows, bind '"' choose-window
+goto = ["prefix+g", "prefix+w", "prefix+ctrl+w", "prefix+double_quote"]
+# tmux: sessionx em prefix+o (escolher sessão ≈ workspace)
+workspace_picker = "prefix+o"
+open_notification_target = "prefix+shift+o" # movido de prefix+o
+
+# ---------------------------------------------------------------------------
+# Splits (novo pane abre no cwd atual: [terminal] new_cwd = "follow" é o default)
+# ---------------------------------------------------------------------------
+split_vertical = ["prefix+v", "prefix+|"]        # tmux: bind v / | split-window -h  (pane à direita)
+split_horizontal = ["prefix+s", "prefix+minus"]  # tmux: bind s / - split-window -v  (pane abaixo)
+
+# ---------------------------------------------------------------------------
+# Foco entre panes
+# ---------------------------------------------------------------------------
+# tmux: bind h/j/k/l select-pane  +  bind -n M-h/j/k/l e M-Left/Down/Up/Right
+# Obs.: aninhado dentro do tmux, os Alt+... são capturados pelo tmux primeiro (bind -n);
+# nesse caso use prefix+h/j/k/l.
+focus_pane_left = ["prefix+h", "alt+h", "alt+left"]
+focus_pane_down = ["prefix+j", "alt+j", "alt+down"]
+focus_pane_up = ["prefix+k", "alt+k", "alt+up"]
+focus_pane_right = ["prefix+l", "alt+l", "alt+right"]
+cycle_pane_next = "prefix+tab"
+cycle_pane_previous = "prefix+shift+tab"
+zoom = "prefix+z"                          # tmux: bind z resize-pane -Z
+
+# ---------------------------------------------------------------------------
+# Redimensionar panes
+# ---------------------------------------------------------------------------
+# tmux: bind -r H/J/K/L resize-pane 5, bind -r Left/Down/Up/Right resize-pane 5,
+#       bind , resize-pane -L 20, bind . resize-pane -R 20, bind = resize-pane -U 7
+resize_pane_left = ["prefix+shift+h", "prefix+left", "prefix+comma"]
+resize_pane_down = ["prefix+shift+j", "prefix+down"]
+resize_pane_up = ["prefix+shift+k", "prefix+up", "prefix+="]
+resize_pane_right = ["prefix+shift+l", "prefix+right", "prefix+period"]
+resize_mode = "prefix+ctrl+r"              # movido de prefix+r (usado para rename)
+
+# ---------------------------------------------------------------------------
+# Fechar / trocar panes
+# ---------------------------------------------------------------------------
+close_pane = "prefix+c"                    # tmux: bind c kill-pane
+swap_pane_down = "prefix+x"                # tmux: bind x swap-pane -D
+# defaults (prefix+shift+h/k/l) agora são resize; sem equivalente no tmux
+swap_pane_left = ""
+swap_pane_up = ""
+swap_pane_right = ""
+
+rename_pane = "prefix+shift+p"
+edit_scrollback = "prefix+e"
+copy_mode = "prefix+["                     # copy mode já usa teclas vi (v seleciona, y copia)
+toggle_sidebar = "prefix+b"
+
+# ---------------------------------------------------------------------------
+# tmux-floax: terminal flutuante em prefix+p, 80% x 80%
+# ---------------------------------------------------------------------------
+[[keys.command]]
+key = "prefix+p"
+type = "popup"
+command = "exec \"${SHELL:-sh}\""
+description = "floating terminal (floax)"
+width = "80%"
+height = "80%"
+
+[ui.toast]
+delivery = "terminal"
+
+[ui]
+show_agent_labels_on_pane_borders = false
