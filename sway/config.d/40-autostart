@@ -1,0 +1,27 @@
+# Mirrors Omarchy default/hypr/autostart.conf with sway-stack equivalents
+
+# Make systemd user services / portals see the session env (screen sharing etc.)
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
+
+exec mako
+exec waybar -c ~/.config/waybar/config-sway.jsonc
+exec swayidle -w
+exec swaybg -c '#1a1b26'
+exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+
+# foot in server mode: new windows via footclient open instantly and share
+# one process (if the server dies, all foot windows close together)
+exec foot --server
+
+# dwindle-like automatic split direction
+exec ~/.local/bin/autotiling
+
+# Solaar daemon: the MX Keys S screenshot key only speaks HID++ through the
+# Bolt receiver (no kernel support on 6.8), so solaar diverts it and a rule in
+# ~/.config/solaar/rules.yaml runs capture-screenshot
+exec solaar --window=hide
+
+# Clipboard history for SUPER+CTRL+V
+exec wl-paste --type text --watch cliphist store
+exec wl-paste --type image --watch cliphist store

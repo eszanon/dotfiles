@@ -1,0 +1,35 @@
+#!/bin/bash
+# Port of omarchy-capture-screenshot: grim + slurp, copy to clipboard and save.
+# Modes: region (default) | window | output
+[[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
+OUTPUT_DIR="${OMARCHY_SCREENSHOT_DIR:-${XDG_PICTURES_DIR:-$HOME/Pictures}}"
+mkdir -p "$OUTPUT_DIR"
+
+# Pressing the shortcut again while selecting cancels the selection
+pkill slurp && exit 0
+
+FILE="$OUTPUT_DIR/screenshot-$(date +%Y-%m-%d_%H-%M-%S).png"
+MODE="${1:-region}"
+
+case "$MODE" in
+region)
+  GEO=$(slurp 2>/dev/null) || exit 0
+  grim -g "$GEO" "$FILE"
+  ;;
+window)
+  GEO=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused? == true) | .rect | "\(.x),\(.y) \(.width)x\(.height)"' | head -1)
+  [[ -n $GEO ]] || exit 1
+  grim -g "$GEO" "$FILE"
+  ;;
+output)
+  OUT=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
+  grim -o "$OUT" "$FILE"
+  ;;
+esac
+
+[[ -f $FILE ]] || exit 1
+# Annotate before saving when swappy is available; closing without saving keeps the original
+command -v swappy >/dev/null && swappy -f "$FILE" -o "$FILE"
+command -v pngquant >/dev/null && pngquant --force --ext .png --skip-if-larger "$FILE"
+wl-copy <"$FILE"
+notify-send -u low -i "$FILE" "Screenshot saved" "$FILE (copied to clipboard)"
