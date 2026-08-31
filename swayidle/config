@@ -1,0 +1,6 @@
+# Idle lock/screen-off disabled (locked the user out of the session once);
+# swayidle stays only for the before-sleep lock. Re-enable by uncommenting.
+# timeout 300 '~/.config/sway/bin/system-lock'
+# timeout 330 'swaymsg "output * power off"' resume 'swaymsg "output * power on"'
+before-sleep '~/.config/sway/bin/system-lock'
+after-resume 'swaymsg "output * power on"'
