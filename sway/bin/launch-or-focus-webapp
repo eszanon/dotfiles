@@ -1,0 +1,9 @@
+#!/bin/bash
+# Port of omarchy-launch-or-focus-webapp
+if (($# == 0)); then
+  echo "Usage: launch-or-focus-webapp [window-pattern] [url-and-flags...]" >&2
+  exit 1
+fi
+WINDOW_PATTERN="$1"
+shift
+exec "$(dirname "$0")/launch-or-focus" "$WINDOW_PATTERN" "$(dirname "$0")/launch-webapp $*"

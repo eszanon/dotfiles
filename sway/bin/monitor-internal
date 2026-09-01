@@ -1,0 +1,17 @@
+#!/bin/bash
+# Port of omarchy-hyprland-monitor-internal: enable/disable/toggle laptop display.
+INTERNAL="eDP-1"
+ACTION="${1:-toggle}"
+
+case "$ACTION" in
+on) swaymsg output "$INTERNAL" enable ;;
+off) swaymsg output "$INTERNAL" disable ;;
+toggle)
+  ACTIVE=$(swaymsg -t get_outputs | jq -r --arg n "$INTERNAL" '.[] | select(.name == $n) | .active')
+  if [[ $ACTIVE == "true" ]]; then
+    swaymsg output "$INTERNAL" disable
+  else
+    swaymsg output "$INTERNAL" enable
+  fi
+  ;;
+esac

@@ -1,0 +1,13 @@
+#!/bin/bash
+# Port of omarchy-launch-tui: run a TUI in its own terminal window with a
+# distinct app id so window rules and launch-or-focus can match it.
+FOOT_SOCK="${XDG_RUNTIME_DIR}/foot-${WAYLAND_DISPLAY}.sock"
+if command -v footclient >/dev/null && [[ -S $FOOT_SOCK ]]; then
+  setsid -f footclient --app-id="org.omarchy.$(basename "$1")" "$@" >/dev/null 2>&1
+elif command -v foot >/dev/null; then
+  setsid -f foot --app-id="org.omarchy.$(basename "$1")" "$@" >/dev/null 2>&1
+elif command -v ghostty >/dev/null; then
+  setsid -f ghostty --class="org.omarchy.$(basename "$1")" -e "$@" >/dev/null 2>&1
+else
+  setsid -f gnome-terminal -- "$@" >/dev/null 2>&1
+fi

@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Sway (dotfiles)
+Comment=Sway started via ~/.config/sway/bin/start-sway (mise PATH + Wayland env)
+Exec=/home/everton.zanon/.config/sway/bin/start-sway
+Type=Application
+DesktopNames=sway

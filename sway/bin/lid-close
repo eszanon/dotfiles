@@ -1,0 +1,18 @@
+#!/bin/bash
+# Port of hypr/scripts/lid-close.sh:
+# with external monitors, park workspace 3 on workspace 1 and turn off the
+# laptop panel; without external monitors, suspend.
+external_monitors=$(swaymsg -t get_outputs | jq '[.[] | select(.name != "eDP-1" and .active)] | length')
+
+if [[ $external_monitors -gt 0 ]]; then
+  current_workspace=$(swaymsg -t get_workspaces | jq -r '.[] | select(.focused) | .num')
+  if [[ $current_workspace == "3" ]]; then
+    swaymsg workspace number 1
+  fi
+
+  swaymsg '[workspace="3"] move container to workspace number 1'
+  swaymsg output eDP-1 disable
+else
+  echo "No external monitor detected, suspending"
+  systemctl suspend
+fi

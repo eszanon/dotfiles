@@ -1,0 +1,20 @@
+# Mirrors Omarchy default/hypr/looknfeel.conf as far as sway allows.
+# No animations/blur/rounding in plain sway.
+
+gaps inner 0
+gaps outer 10
+
+default_border pixel 2
+default_floating_border pixel 2
+titlebar_padding 5 2
+
+# Omarchy: active border cyan/green gradient, inactive grey (no gradients here)
+# class                 border  background text    indicator child_border
+client.focused          #33ccff #33ccff    #1a1a1a #00ff99   #33ccff
+client.focused_inactive #595959 #595959    #ffffff #595959   #595959
+client.unfocused        #595959 #333333    #bbbbbb #595959   #595959
+client.urgent           #ff6699 #ff6699    #ffffff #ff6699   #ff6699
+
+focus_on_window_activation focus
+smart_gaps off
+smart_borders on

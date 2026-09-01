@@ -1,0 +1,11 @@
+#!/bin/bash
+# Port of omarchy-launch-editor
+EDITOR_BIN="${EDITOR:-nvim}"
+case "$EDITOR_BIN" in
+nvim | vim | nano | micro | hx | helix)
+  exec "$(dirname "$0")/launch-tui" "$EDITOR_BIN" "$@"
+  ;;
+*)
+  setsid -f "$EDITOR_BIN" "$@" >/dev/null 2>&1
+  ;;
+esac

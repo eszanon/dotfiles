@@ -1,0 +1,10 @@
+#!/bin/bash
+# Port of omarchy-capture-text-extraction: OCR a screen region to the clipboard.
+if ! command -v tesseract >/dev/null; then
+  notify-send -u critical "OCR unavailable" "Install tesseract-ocr"
+  exit 1
+fi
+GEO=$(slurp 2>/dev/null) || exit 0
+TEXT=$(grim -g "$GEO" - | tesseract stdin stdout 2>/dev/null)
+echo -n "$TEXT" | wl-copy
+notify-send -u low "Text extracted" "Copied to clipboard"

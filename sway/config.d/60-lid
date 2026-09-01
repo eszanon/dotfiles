@@ -1,0 +1,3 @@
+# Laptop lid handling, ported from hypr/scripts/lid-{close,open}.sh
+bindswitch --reload --locked lid:on exec $bin/lid-close
+bindswitch --reload --locked lid:off exec $bin/lid-open

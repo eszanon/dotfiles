@@ -1,0 +1,22 @@
+#!/bin/bash
+# Port of omarchy-launch-or-focus: focus a window matching the pattern, else launch.
+if (($# == 0)); then
+  echo "Usage: launch-or-focus [window-pattern] [launch-command]" >&2
+  exit 1
+fi
+
+WINDOW_PATTERN="$1"
+LAUNCH_COMMAND="${2:-$1}"
+
+CON_ID=$(swaymsg -t get_tree | jq -r --arg p "$WINDOW_PATTERN" '
+  [.. | objects | select(.pid? != null)
+   | select(((.app_id // "") | test($p; "i"))
+         or ((.window_properties.class // "") | test($p; "i"))
+         or ((.name // "") | test($p; "i")))]
+  | first | .id // empty')
+
+if [[ -n $CON_ID ]]; then
+  swaymsg "[con_id=$CON_ID] focus"
+else
+  setsid -f bash -c "$LAUNCH_COMMAND" >/dev/null 2>&1
+fi

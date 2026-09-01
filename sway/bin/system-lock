@@ -1,0 +1,4 @@
+#!/bin/bash
+# Port of omarchy-system-lock: reset to first keyboard layout, then lock.
+swaymsg 'input type:keyboard xkb_switch_layout 0' >/dev/null 2>&1
+pgrep -x swaylock >/dev/null || swaylock -f

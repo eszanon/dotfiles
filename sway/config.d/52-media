@@ -1,0 +1,29 @@
+# Translation of Omarchy default/hypr/bindings/media.conf
+# --locked keeps these working on the lock screen (bindl/bindel equivalents)
+
+bindsym --locked XF86AudioRaiseVolume exec $bin/audio-output-volume raise
+bindsym --locked XF86AudioLowerVolume exec $bin/audio-output-volume lower
+bindsym --locked XF86AudioMute exec $bin/audio-output-volume mute-toggle
+bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym --locked XF86MonBrightnessUp exec $bin/brightness-display +5%
+bindsym --locked XF86MonBrightnessDown exec $bin/brightness-display 5%-
+bindsym --locked Shift+XF86MonBrightnessUp exec $bin/brightness-display 100%
+bindsym --locked Shift+XF86MonBrightnessDown exec $bin/brightness-display 1%
+bindsym --locked XF86KbdBrightnessUp exec $bin/brightness-keyboard up
+bindsym --locked XF86KbdBrightnessDown exec $bin/brightness-keyboard down
+bindsym --locked XF86TouchpadToggle input type:touchpad events toggle enabled disabled
+
+# Precise 1% adjustments with Alt
+bindsym --locked Alt+XF86AudioRaiseVolume exec $bin/audio-output-volume +1
+bindsym --locked Alt+XF86AudioLowerVolume exec $bin/audio-output-volume -1
+bindsym --locked Alt+XF86MonBrightnessUp exec $bin/brightness-display +1%
+bindsym --locked Alt+XF86MonBrightnessDown exec $bin/brightness-display 1%-
+
+# Requires playerctl
+bindsym --locked XF86AudioNext exec playerctl next
+bindsym --locked XF86AudioPause exec playerctl play-pause
+bindsym --locked XF86AudioPlay exec playerctl play-pause
+bindsym --locked XF86AudioPrev exec playerctl previous
+
+# Switch audio output with Super + Mute
+bindsym --locked $mod+XF86AudioMute exec $bin/audio-output-switch

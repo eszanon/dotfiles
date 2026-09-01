@@ -1,0 +1,16 @@
+#!/bin/bash
+# Alt+Tab: cycle focus through the windows of the focused workspace
+# (Hyprland cyclenext replacement). Pass "prev" to cycle backwards.
+DIR="${1:-next}"
+
+CON_ID=$(swaymsg -t get_tree | jq -r --arg dir "$DIR" '
+  [.. | objects | select(.type? == "workspace")]
+  | map(select([recurse(.nodes[]?, .floating_nodes[]?) | .focused == true] | any))
+  | first
+  | [recurse(.nodes[]?, .floating_nodes[]?) | select(.pid? != null)]
+  | if length < 2 then empty else
+      (map(.focused) | index(true)) as $i
+      | .[(($i + (if $dir == "prev" then -1 else 1 end) + length) % length)].id
+    end')
+
+[[ -n $CON_ID ]] && swaymsg "[con_id=$CON_ID] focus"

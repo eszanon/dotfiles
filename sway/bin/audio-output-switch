@@ -1,0 +1,17 @@
+#!/bin/bash
+# Port of omarchy-audio-output-switch: cycle the default sink.
+mapfile -t SINKS < <(pactl list short sinks | awk '{print $2}')
+((${#SINKS[@]} > 1)) || exit 0
+
+CURRENT=$(pactl get-default-sink)
+NEXT="${SINKS[0]}"
+for i in "${!SINKS[@]}"; do
+  if [[ ${SINKS[$i]} == "$CURRENT" ]]; then
+    NEXT="${SINKS[$(((i + 1) % ${#SINKS[@]}))]}"
+    break
+  fi
+done
+
+pactl set-default-sink "$NEXT"
+DESC=$(pactl list sinks | grep -A1 "Name: $NEXT" | grep Description | cut -d: -f2-)
+notify-send -u low "  Audio output" "${DESC:-$NEXT}"

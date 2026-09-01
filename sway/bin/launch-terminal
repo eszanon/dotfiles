@@ -1,0 +1,23 @@
+#!/bin/bash
+# SUPER+RETURN: open a terminal in the cwd of the focused terminal, inside
+# tmux when available (mirrors the personal PC's SUPER+RETURN tmux terminal).
+# Prefers foot (native, instant) and falls back to ghostty/gnome-terminal.
+DIR="$("$(dirname "$0")/terminal-cwd")"
+
+if command -v tmux >/dev/null; then
+  CMD=(tmux)
+else
+  CMD=("${SHELL:-zsh}")
+fi
+
+FOOT_SOCK="${XDG_RUNTIME_DIR}/foot-${WAYLAND_DISPLAY}.sock"
+if command -v footclient >/dev/null && [[ -S $FOOT_SOCK ]]; then
+  exec footclient --working-directory="$DIR" "${CMD[@]}"
+elif command -v foot >/dev/null; then
+  exec foot --working-directory="$DIR" "${CMD[@]}"
+elif command -v ghostty >/dev/null; then
+  # ghostty's own config already runs tmux
+  exec ghostty --working-directory="$DIR"
+else
+  exec gnome-terminal --working-directory="$DIR"
+fi

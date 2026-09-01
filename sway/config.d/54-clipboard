@@ -1,0 +1,3 @@
+# Clipboard manager (Omarchy used walker -m clipboard; here: cliphist + wofi)
+# SUPER+V/X universal paste/cut deliberately left out (no sendshortcut in sway).
+bindsym $mod+Ctrl+v exec cliphist list | wofi --dmenu --prompt clipboard | cliphist decode | wl-copy

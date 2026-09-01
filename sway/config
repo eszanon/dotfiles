@@ -1,0 +1,16 @@
+# Sway config emulating the Omarchy (Hyprland) experience from the personal PC.
+# Keybindings mirror ~/.local/share/omarchy/default/hypr/bindings (v3.8.4) plus
+# the overrides kept in this repo under hypr/.
+
+set $mod Mod4
+set $bin ~/.config/sway/bin
+
+font pango:JetBrainsMono Nerd Font 10
+
+# Drag/resize floating windows with SUPER + left/right mouse button
+floating_modifier $mod normal
+
+include ~/.config/sway/config.d/*
+
+# Ubuntu/Debian session integration (systemd user env, portals), if present
+include /etc/sway/config.d/*

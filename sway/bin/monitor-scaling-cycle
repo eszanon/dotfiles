@@ -1,0 +1,24 @@
+#!/bin/bash
+# Port of omarchy-hyprland-monitor-scaling-cycle for the focused output.
+SCALES=(1 1.25 1.5 1.75 2)
+
+read -r OUT CURRENT < <(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | "\(.name) \(.scale)"')
+[[ -n $OUT ]] || exit 1
+
+# Find the closest known scale, then step forward/backward
+IDX=0
+for i in "${!SCALES[@]}"; do
+  if awk -v a="${SCALES[$i]}" -v b="$CURRENT" 'BEGIN {exit !(a - b < 0.01 && b - a < 0.01)}'; then
+    IDX=$i
+    break
+  fi
+done
+
+if [[ $1 == "--reverse" ]]; then
+  IDX=$(((IDX - 1 + ${#SCALES[@]}) % ${#SCALES[@]}))
+else
+  IDX=$(((IDX + 1) % ${#SCALES[@]}))
+fi
+
+swaymsg output "$OUT" scale "${SCALES[$IDX]}"
+notify-send -u low "Monitor scale" "$OUT → ${SCALES[$IDX]}"

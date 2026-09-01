@@ -1,0 +1,19 @@
+#!/bin/bash
+# Screen recording toggle with wf-recorder (Omarchy used gpu-screen-recorder).
+# First press starts recording the focused output; second press stops it.
+[[ -f ~/.config/user-dirs.dirs ]] && source ~/.config/user-dirs.dirs
+OUTPUT_DIR="${XDG_VIDEOS_DIR:-$HOME/Videos}"
+mkdir -p "$OUTPUT_DIR"
+RECORDING_FILE="/tmp/sway-screenrecord-filename"
+
+if pgrep -x wf-recorder >/dev/null; then
+  pkill -INT -x wf-recorder
+  notify-send -u low "Screen recording stopped" "$(cat "$RECORDING_FILE" 2>/dev/null)"
+  exit 0
+fi
+
+FILE="$OUTPUT_DIR/screenrecording-$(date +%Y-%m-%d_%H-%M-%S).mp4"
+echo "$FILE" >"$RECORDING_FILE"
+OUT=$(swaymsg -t get_outputs | jq -r '.[] | select(.focused) | .name')
+notify-send -u low "Screen recording started" "Alt+Print stops it"
+exec wf-recorder -o "$OUT" -f "$FILE"

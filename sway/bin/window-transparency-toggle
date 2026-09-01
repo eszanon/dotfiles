@@ -1,0 +1,13 @@
+#!/bin/bash
+# Port of omarchy-hyprland-window-transparency-toggle using sway's opacity.
+CON_ID=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused? == true) | .id' | head -1)
+[[ -n $CON_ID ]] || exit 1
+
+STATE="/tmp/sway-transparent-$CON_ID"
+if [[ -f $STATE ]]; then
+  swaymsg "[con_id=$CON_ID] opacity set 1"
+  rm -f "$STATE"
+else
+  swaymsg "[con_id=$CON_ID] opacity set 0.9"
+  touch "$STATE"
+fi

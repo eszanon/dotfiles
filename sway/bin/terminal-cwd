@@ -1,0 +1,15 @@
+#!/bin/bash
+# Port of omarchy-cmd-terminal-cwd: cwd of the shell in the focused terminal,
+# so SUPER+RETURN opens the new terminal in the same directory.
+terminal_pid=$(swaymsg -t get_tree | jq -r '.. | objects | select(.focused? == true) | .pid // empty' | head -1)
+shell_pid=$(pgrep -P "$terminal_pid" 2>/dev/null | tail -n1)
+
+if [[ -n $shell_pid ]]; then
+  cwd=$(readlink -f "/proc/$shell_pid/cwd" 2>/dev/null)
+  shell=$(readlink -f "/proc/$shell_pid/exe" 2>/dev/null)
+  if grep -qs "$shell" /etc/shells && [[ -d $cwd ]]; then
+    echo "$cwd"
+    exit 0
+  fi
+fi
+echo "$HOME"

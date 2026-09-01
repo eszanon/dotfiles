@@ -1,0 +1,8 @@
+#!/bin/bash
+# Port of omarchy-toggle-notification-silencing (mako do-not-disturb mode)
+makoctl mode -t do-not-disturb >/dev/null
+if makoctl mode | grep -q do-not-disturb; then
+  notify-send -u low "Notifications silenced" 2>/dev/null
+else
+  notify-send -u low "  Notifications enabled"
+fi

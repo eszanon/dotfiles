@@ -1,0 +1,13 @@
+#!/bin/bash
+# SUPER+K: browse all sway keybindings in wofi (omarchy-menu-keybindings port).
+grep -hE '^\s*bind(sym|code|gesture)' ~/.config/sway/config ~/.config/sway/config.d/* 2>/dev/null |
+  sed -E \
+    -e 's/^\s*bind(sym|code|gesture)\s+//' \
+    -e 's/--(locked|reload|whole-window|no-repeat|release)\s+//g' \
+    -e 's/\$mod/SUPER/g' \
+    -e 's/\b10\b/1/; s/\b11\b/2/; s/\b12\b/3/; s/\b13\b/4/; s/\b14\b/5/' \
+    -e 's/\b15\b/6/; s/\b16\b/7/; s/\b17\b/8/; s/\b18\b/9/; s/\b19\b/0/' \
+    -e 's/\b20\b/minus/; s/\b21\b/equal/; s/\b61\b/slash/' |
+  awk '{key=$1; $1=""; printf "%-35s %s\n", key, $0}' |
+  sort |
+  wofi --dmenu --prompt "Keybindings" --width 800 --height 600 >/dev/null

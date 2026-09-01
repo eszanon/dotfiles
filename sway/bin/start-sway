@@ -1,0 +1,15 @@
+#!/bin/bash
+# Session wrapper: GDM starts sway without going through zsh, so tools managed
+# by mise (tmux, code, btop, ...) would be missing from PATH for everything
+# sway launches. Injected here so every child inherits it.
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
+
+# Wayland-friendly defaults (mirrors Omarchy default/hypr/envs.conf)
+export MOZ_ENABLE_WAYLAND=1
+export ELECTRON_OZONE_PLATFORM_HINT=wayland
+export QT_QPA_PLATFORM="wayland;xcb"
+export XDG_CURRENT_DESKTOP=sway
+
+# Absolute path: this script is linked as /usr/local/bin/sway, which shadows
+# the real binary in PATH — exec'ing plain "sway" would loop forever.
+exec /usr/bin/sway "$@"

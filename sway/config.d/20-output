@@ -1,0 +1,10 @@
+# Mirrors hypr/monitors.conf
+# Layout (left to right): Husky (HDMI-A-1) | AOC (DP-1) | laptop (eDP-1)
+
+output HDMI-A-1 mode 2560x1440@60Hz pos 0 0 scale 1
+output DP-1     mode 2560x1440@60Hz pos 2560 0 scale 1
+output eDP-1    mode 1920x1080@60Hz pos 5120 0 scale 1
+
+workspace 1 output HDMI-A-1
+workspace 2 output DP-1
+workspace 3 output eDP-1

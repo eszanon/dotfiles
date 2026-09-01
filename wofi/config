@@ -1,0 +1,10 @@
+show=drun
+width=644
+height=320
+prompt=Launch
+insensitive=true
+allow_images=true
+image_size=24
+hide_scroll=true
+no_actions=true
+key_expand=Tab

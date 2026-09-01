@@ -1,0 +1,24 @@
+# Mirrors hypr/input.conf
+
+input type:keyboard {
+    xkb_layout br,us
+    # grp:shift_caps_toggle conflicted with Ctrl+Shift shortcuts
+    xkb_options grp:alt_shift_toggle
+    repeat_rate 40
+    repeat_delay 600
+    xkb_numlock enabled
+}
+
+input type:touchpad {
+    natural_scroll enabled
+    scroll_factor 0.4
+    tap enabled
+    # clickfinger_behavior = false on Hyprland -> button areas on sway
+    click_method button_areas
+}
+
+# Hide the cursor while typing (Omarchy: cursor.hide_on_key_press)
+seat * hide_cursor when-typing enable
+
+# 3-finger vertical swipe toggles the scratchpad (hypr/scratchpad.conf gesture)
+bindgesture swipe:3:up scratchpad show

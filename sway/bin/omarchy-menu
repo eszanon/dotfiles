@@ -1,0 +1,56 @@
+#!/bin/bash
+# Minimal omarchy-menu replacement built on wofi dmenu.
+# Usage: omarchy-menu [system|capture|toggle]
+BIN="$(dirname "$0")"
+
+menu() {
+  printf '%s' "$2" | wofi --dmenu --prompt "$1" --width 400 --height 320
+}
+
+show_main() {
+  case $(menu "Omarchy" $'Apps\nCapture\nToggle\nKeybindings\nSystem') in
+  Apps) exec wofi --show drun ;;
+  Capture) show_capture ;;
+  Toggle) show_toggle ;;
+  Keybindings) exec "$BIN/menu-keybindings" ;;
+  System) show_system ;;
+  esac
+}
+
+show_capture() {
+  case $(menu "Capture" $'Screenshot region\nScreenshot window\nScreenshot output\nScreen record\nColor picker\nExtract text (OCR)') in
+  "Screenshot region") exec "$BIN/capture-screenshot" region ;;
+  "Screenshot window") exec "$BIN/capture-screenshot" window ;;
+  "Screenshot output") exec "$BIN/capture-screenshot" output ;;
+  "Screen record") exec "$BIN/capture-screenrecording" ;;
+  "Color picker") exec "$BIN/color-picker" ;;
+  "Extract text (OCR)") exec "$BIN/capture-text" ;;
+  esac
+}
+
+show_toggle() {
+  case $(menu "Toggle" $'Idle lock\nNightlight\nTop bar\nDo not disturb') in
+  "Idle lock") exec "$BIN/toggle-idle" ;;
+  "Nightlight") exec "$BIN/toggle-nightlight" ;;
+  "Top bar") exec "$BIN/toggle-waybar" ;;
+  "Do not disturb") exec "$BIN/toggle-notifications" ;;
+  esac
+}
+
+show_system() {
+  case $(menu "System" $'Lock\nSuspend\nRelaunch\nLogout\nRestart\nShutdown') in
+  Lock) exec "$BIN/system-lock" ;;
+  Suspend) exec systemctl suspend ;;
+  Relaunch) exec swaymsg reload ;;
+  Logout) exec swaymsg exit ;;
+  Restart) exec systemctl reboot ;;
+  Shutdown) exec systemctl poweroff ;;
+  esac
+}
+
+case "${1:-main}" in
+system) show_system ;;
+capture) show_capture ;;
+toggle) show_toggle ;;
+*) show_main ;;
+esac

@@ -1,0 +1,15 @@
+#!/bin/bash
+# Port of omarchy-launch-browser: open the default browser, --private for incognito.
+default_browser=$(xdg-settings get default-web-browser 2>/dev/null)
+browser_exec=$(sed -n 's/^Exec=\([^ ]*\).*/\1/p' ~/.local/share/applications/$default_browser /usr/share/applications/$default_browser 2>/dev/null | head -1)
+browser_exec="${browser_exec:-google-chrome}"
+
+if [[ $browser_exec =~ firefox ]]; then
+  private_flag="--private-window"
+elif [[ $browser_exec =~ edge ]]; then
+  private_flag="--inprivate"
+else
+  private_flag="--incognito"
+fi
+
+setsid -f "$browser_exec" "${@/--private/$private_flag}" >/dev/null 2>&1

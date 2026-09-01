@@ -1,0 +1,37 @@
+#!/bin/bash
+# Port of omarchy-brightness-display (brightnessctl + notify, dpms via swaymsg).
+step="${1:-+5%}"
+
+device="$(ls -1 /sys/class/backlight 2>/dev/null | head -n1)"
+for candidate in amdgpu_bl* intel_backlight acpi_video*; do
+  if [[ -e /sys/class/backlight/$candidate ]]; then
+    device="$candidate"
+    break
+  fi
+done
+[[ -n $device ]] || exit 0
+
+if [[ $step == "off" ]]; then
+  swaymsg "output * power off" >/dev/null 2>&1
+  exit 0
+elif [[ $step == "on" ]]; then
+  swaymsg "output * power on" >/dev/null 2>&1
+  exit 0
+fi
+
+current=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
+
+# Below 5% move in 1% steps so the screen never jumps straight to off
+if [[ $step == "+5%" ]]; then
+  if ((current < 5)); then ((target = current + 1)); else ((target = current + 5)); fi
+  ((target > 100)) && target=100
+  step="$target%"
+elif [[ $step == "5%-" ]]; then
+  if ((current <= 5)); then ((target = current - 1)); else ((target = current - 5)); fi
+  ((target < 1)) && target=1
+  step="$target%"
+fi
+
+brightnessctl -d "$device" set "$step" >/dev/null
+PCT=$(brightnessctl -d "$device" -m | cut -d',' -f4 | tr -d '%')
+notify-send -u low -h string:x-canonical-private-synchronous:brightness -h int:value:"$PCT" "  Brightness ${PCT}%"

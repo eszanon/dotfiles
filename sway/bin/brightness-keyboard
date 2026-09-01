@@ -1,0 +1,10 @@
+#!/bin/bash
+# Port of omarchy-brightness-keyboard
+DEVICE=$(brightnessctl -l -m 2>/dev/null | awk -F, '/kbd_backlight/ {print $1; exit}')
+[[ -n $DEVICE ]] || exit 0
+
+case "${1:-up}" in
+up) brightnessctl -d "$DEVICE" set +34% >/dev/null ;;
+down) brightnessctl -d "$DEVICE" set 34%- >/dev/null ;;
+off) brightnessctl -d "$DEVICE" set 0 >/dev/null ;;
+esac

@@ -1,0 +1,18 @@
+#!/bin/bash
+# Port of omarchy-audio-output-volume / swayosd client (wpctl + notify).
+case "${1:-raise}" in
+raise) wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+ ;;
+lower) wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%- ;;
+mute-toggle) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
++1) wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%+ ;;
+-1) wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 1%- ;;
+*) exit 1 ;;
+esac
+
+VOL_LINE=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+VOL=$(awk '{printf "%d", $2 * 100}' <<<"$VOL_LINE")
+if grep -q MUTED <<<"$VOL_LINE"; then
+  notify-send -u low -h string:x-canonical-private-synchronous:volume "  Muted"
+else
+  notify-send -u low -h string:x-canonical-private-synchronous:volume -h int:value:"$VOL" "  Volume ${VOL}%"
+fi

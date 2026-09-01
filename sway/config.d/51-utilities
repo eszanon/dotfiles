@@ -1,0 +1,56 @@
+# Translation of Omarchy default/hypr/bindings/utilities.conf
+
+# Menus
+bindsym $mod+space exec wofi --show drun
+bindsym $mod+Alt+space exec $bin/omarchy-menu
+bindsym $mod+Escape exec $bin/omarchy-menu system
+bindsym --locked XF86PowerOff exec $bin/omarchy-menu system
+bindsym $mod+Ctrl+c exec $bin/omarchy-menu capture
+bindsym $mod+Ctrl+o exec $bin/omarchy-menu toggle
+bindsym $mod+k exec $bin/menu-keybindings
+bindsym XF86Calculator exec gnome-calculator
+# SUPER+CTRL+E (emoji picker) had no walker replacement; omitted
+
+# Aesthetics
+bindsym $mod+Shift+space exec $bin/toggle-waybar
+bindsym $mod+BackSpace exec $bin/window-transparency-toggle
+bindsym $mod+Shift+BackSpace gaps inner all toggle 5; gaps outer all toggle 10
+# Theme/background menus are Omarchy-specific; omitted
+
+# Notifications
+bindsym $mod+comma exec makoctl dismiss
+bindsym $mod+Shift+comma exec makoctl dismiss --all
+bindsym $mod+Ctrl+comma exec $bin/toggle-notifications
+bindsym $mod+Alt+comma exec makoctl invoke
+bindsym $mod+Shift+Alt+comma exec makoctl restore
+
+# Toggles
+bindsym $mod+Ctrl+i exec $bin/toggle-idle
+bindsym $mod+Ctrl+n exec $bin/toggle-nightlight
+bindsym $mod+Ctrl+Delete exec $bin/monitor-internal toggle
+
+# Captures
+bindsym Print exec $bin/capture-screenshot region
+# Logitech MX Keys screenshot key in media mode (Fn-lock off)
+bindsym XF86SelectiveScreenshot exec $bin/capture-screenshot region
+bindsym Shift+Print exec $bin/capture-screenshot window
+bindsym Ctrl+Print exec $bin/capture-screenshot output
+bindsym Alt+Print exec $bin/capture-screenrecording
+bindsym $mod+Print exec $bin/color-picker
+bindsym $mod+Ctrl+Print exec $bin/capture-text
+
+# Waybar-less information
+bindsym $mod+Ctrl+Alt+t exec notify-send -u low "    $(date +'%A %H:%M  ·  %d %B %Y  ·  Week %V')"
+bindsym $mod+Ctrl+Alt+b exec notify-send -u low "  Battery: $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1)%"
+
+# Control panels
+bindsym $mod+Ctrl+a exec $bin/launch-tui wiremix
+bindsym $mod+Ctrl+b exec $bin/launch-tui bluetui
+bindsym $mod+Ctrl+w exec $bin/launch-tui nmtui
+bindsym $mod+Ctrl+t exec $bin/launch-tui btop
+
+# Lock system
+bindsym $mod+Ctrl+l exec $bin/system-lock
+
+# Reload sway config (handy while iterating)
+bindsym $mod+Shift+r reload

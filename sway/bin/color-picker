@@ -1,0 +1,8 @@
+#!/bin/bash
+# Color picker (hyprpicker replacement): grab 1 pixel with slurp+grim.
+# A binary PPM (P6, maxval 255) ends with exactly 3 bytes: R G B.
+POINT=$(slurp -p 2>/dev/null) || exit 0
+HEX=$(grim -g "$POINT" -t ppm - | tail -c 3 | od -An -tx1 | tr -d ' \n')
+[[ -n $HEX ]] || exit 1
+echo -n "#$HEX" | wl-copy
+notify-send -u low "Color picked" "#$HEX (copied to clipboard)"

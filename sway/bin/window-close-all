@@ -1,0 +1,6 @@
+#!/bin/bash
+# Port of omarchy-hyprland-window-close-all
+swaymsg -t get_tree |
+  jq -r '.. | objects | select(.pid? != null) | .id' |
+  xargs -I{} swaymsg '[con_id={}] kill'
+swaymsg workspace number 1

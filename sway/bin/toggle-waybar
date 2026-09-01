@@ -1,0 +1,7 @@
+#!/bin/bash
+# Port of omarchy-toggle-waybar
+if pgrep -x waybar >/dev/null; then
+  pkill -x waybar
+else
+  setsid -f waybar -c ~/.config/waybar/config-sway.jsonc >/dev/null 2>&1
+fi

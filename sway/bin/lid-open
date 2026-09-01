@@ -1,0 +1,3 @@
+#!/bin/bash
+# Port of hypr/scripts/lid-open.sh: re-enable the laptop panel.
+swaymsg output eDP-1 enable

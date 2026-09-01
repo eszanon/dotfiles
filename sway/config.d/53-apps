@@ -1,0 +1,29 @@
+# Translation of hypr/bindings.conf (the user's Omarchy overrides)
+
+bindsym $mod+Return exec $bin/launch-terminal
+bindsym $mod+Shift+f exec nautilus --new-window
+bindsym $mod+Shift+b exec $bin/launch-browser
+bindsym $mod+Shift+Alt+b exec $bin/launch-browser --private
+bindsym $mod+c exec code
+bindsym $mod+r exec gnome-calculator
+bindsym $mod+Shift+m exec $bin/launch-or-focus spotify
+bindsym $mod+Shift+s exec $bin/launch-or-focus slack
+bindsym $mod+Shift+n exec $bin/launch-editor
+bindsym $mod+Shift+t exec $bin/launch-tui btop
+bindsym $mod+Shift+d exec $bin/launch-tui lazydocker
+bindsym $mod+Shift+g exec $bin/launch-or-focus signal "signal-desktop"
+bindsym $mod+Shift+o exec $bin/launch-or-focus obsidian "obsidian --enable-wayland-ime"
+bindcode $mod+Shift+61 exec 1password
+
+# Web apps
+bindsym $mod+Shift+a exec $bin/launch-webapp "https://chatgpt.com"
+bindsym $mod+Shift+Alt+a exec $bin/launch-webapp "https://grok.com"
+bindsym $mod+Shift+c exec $bin/launch-webapp "https://calendar.google.com/calendar/b/0/r"
+bindsym $mod+Shift+e exec $bin/launch-webapp "https://mail.google.com/mail/u/0/#inbox"
+bindsym $mod+Shift+y exec $bin/launch-webapp "https://youtube.com/"
+bindsym $mod+Shift+w exec $bin/launch-or-focus-webapp WhatsApp "https://web.whatsapp.com/"
+bindsym $mod+Shift+Ctrl+g exec $bin/launch-or-focus-webapp "Google Messages" "https://messages.google.com/web/conversations"
+bindsym $mod+Shift+p exec $bin/launch-or-focus-webapp "Google Photos" "https://photos.google.com/"
+bindsym $mod+Shift+l exec $bin/launch-or-focus-webapp "Google Meet" "https://meet.google.com/home"
+bindsym $mod+Shift+x exec $bin/launch-webapp "https://x.com/"
+bindsym $mod+Shift+Alt+x exec $bin/launch-webapp "https://x.com/compose/post"
