@@ -17,14 +17,14 @@
   current  = magenta
   remote   = yellow
   upstream = green
-  plain    = blue
+  plain    = blue	
 
 [editor]
   command = code --wait
 
 [user]
-	name = eszanon
-	email = eszanon@gmail.com
+	name = everton.zanon
+	email = everton.zanon@magalu.cloud
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
@@ -32,5 +32,7 @@
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
 
+[url "https://everton.zanon@git.mgc.internal/"]
+	insteadOf = https://git.mgc.internal/
 [push]
-    autoSetupRemote = true
+	autoSetupRemote = true
