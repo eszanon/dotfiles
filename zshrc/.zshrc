@@ -145,6 +145,8 @@ function y() {
 	rm -f -- "$tmp"
 }
 
+export PATH="$GOROOT/bin:$PATH"
+
 eval "$(zoxide init --cmd cd zsh)"
 # eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(mise activate zsh)"
@@ -171,9 +173,22 @@ ssh-add -l &>/dev/null
 # fi
 
 # Source work-related scripts
-for script in $HOME/.config/work/**/*.sh; do
-    if [[ -f "$script" ]]; then
-        source "$script"
-    fi
-done
+#for script in $HOME/.config/work/**/*.sh; do
+#    if [[ -f "$script" ]]; then
+#        source "$script"
+#    fi
+#done
 export PATH="$HOME/.local/bin:$PATH"
+
+# Ensure GUI-launched apps (like VS Code) can resolve tools managed by mise.
+if [ -d "$HOME/.local/share/mise/shims" ] ; then
+    PATH="$HOME/.local/share/mise/shims:$PATH"
+fi
+
+# Keep direct Go installation path available as a fallback via mise.
+if command -v mise >/dev/null 2>&1 ; then
+    GO_MISE_BIN="$(mise where go 2>/dev/null)/bin"
+    if [ -d "$GO_MISE_BIN" ] ; then
+        PATH="$GO_MISE_BIN:$PATH"
+    fi
+fi
