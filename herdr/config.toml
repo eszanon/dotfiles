@@ -8,8 +8,9 @@ onboarding = false
 # Ver bindings ativos: prefix+?
 
 [theme]
-name = "catppuccin"
+name = "terminal"
 
+auto_switch = false
 [keys]
 # tmux usa ^A; aqui ^S para não colidir quando o herdr roda dentro do tmux
 prefix = "ctrl+s"
@@ -39,6 +40,10 @@ close_tab = "prefix+shift+x"
 goto = ["prefix+g", "prefix+w", "prefix+ctrl+w", "prefix+double_quote"]
 # tmux: sessionx em prefix+o (escolher sessão ≈ workspace)
 workspace_picker = "prefix+o"
+# shift+1..9 não funciona em terminal (Shift+1 chega como "!" do layout);
+# alt+digito viaja como ESC+digito e passa pelo tmux sem ambiguidade
+switch_workspace = "prefix+alt+1..9"       # ir direto ao workspace 1-9
+focus_agent = "prefix+ctrl+1..9"           # focar o agent 1-9 do painel
 open_notification_target = "prefix+shift+o" # movido de prefix+o
 
 # ---------------------------------------------------------------------------
@@ -99,7 +104,8 @@ width = "80%"
 height = "80%"
 
 [ui.toast]
-delivery = "terminal"
+delivery = "system"
 
 [ui]
-show_agent_labels_on_pane_borders = false
+show_agent_labels_on_pane_borders = true
+status_indicators = "symbols"
