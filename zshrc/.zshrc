@@ -147,7 +147,8 @@ function y() {
 
 export PATH="$GOROOT/bin:$PATH"
 
-eval "$(zoxide init --cmd cd zsh)"
+# eval "$(zoxide init --cmd cd zsh)"
+eval "$(zoxide init zsh)" 
 # eval "$(atuin init zsh --disable-up-arrow)"
 eval "$(mise activate zsh)"
 
