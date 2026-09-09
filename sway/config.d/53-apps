@@ -10,6 +10,8 @@ bindsym $mod+Shift+m exec $bin/launch-or-focus spotify
 bindsym $mod+Shift+s exec $bin/launch-or-focus slack
 bindsym $mod+Shift+n exec $bin/launch-editor
 bindsym $mod+Shift+t exec $bin/launch-tui btop
+# Disposable floating shell: run a command, exit/Ctrl+D closes it
+bindsym $mod+Shift+p exec $bin/launch-tui zsh
 bindsym $mod+Shift+d exec $bin/launch-tui lazydocker
 bindsym $mod+Shift+g exec $bin/launch-or-focus signal "signal-desktop"
 bindsym $mod+Shift+o exec $bin/launch-or-focus obsidian "obsidian --enable-wayland-ime"
@@ -23,7 +25,7 @@ bindsym $mod+Shift+e exec $bin/launch-webapp "https://mail.google.com/mail/u/0/#
 bindsym $mod+Shift+y exec $bin/launch-webapp "https://youtube.com/"
 bindsym $mod+Shift+w exec $bin/launch-or-focus-webapp WhatsApp "https://web.whatsapp.com/"
 bindsym $mod+Shift+Ctrl+g exec $bin/launch-or-focus-webapp "Google Messages" "https://messages.google.com/web/conversations"
-bindsym $mod+Shift+p exec $bin/launch-or-focus-webapp "Google Photos" "https://photos.google.com/"
+bindsym $mod+Shift+Alt+p exec $bin/launch-or-focus-webapp "Google Photos" "https://photos.google.com/"
 bindsym $mod+Shift+l exec $bin/launch-or-focus-webapp "Google Meet" "https://meet.google.com/home"
 bindsym $mod+Shift+x exec $bin/launch-webapp "https://x.com/"
 bindsym $mod+Shift+Alt+x exec $bin/launch-webapp "https://x.com/compose/post"

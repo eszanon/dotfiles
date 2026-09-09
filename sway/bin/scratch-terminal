@@ -1,0 +1,26 @@
+#!/bin/bash
+# SUPER+S: quake-style dropdown terminal living in the scratchpad.
+# First press launches it (window rule in config.d/35-windows floats, sizes and
+# parks it in the scratchpad); later presses toggle it on/off the screen.
+# Runs inside a tmux session so the shell survives even if foot is closed.
+APP_ID=scratch-term
+
+if swaymsg -t get_tree | jq -e --arg id "$APP_ID" \
+  'first(.. | select(.app_id? == $id))' >/dev/null; then
+  exec swaymsg "[app_id=\"$APP_ID\"] scratchpad show"
+fi
+
+if command -v tmux >/dev/null; then
+  CMD=(tmux new-session -A -s scratch)
+else
+  CMD=("${SHELL:-zsh}")
+fi
+
+FOOT_SOCK="${XDG_RUNTIME_DIR}/foot-${WAYLAND_DISPLAY}.sock"
+if command -v footclient >/dev/null && [[ -S $FOOT_SOCK ]]; then
+  setsid -f footclient --app-id="$APP_ID" "${CMD[@]}" >/dev/null 2>&1
+elif command -v foot >/dev/null; then
+  setsid -f foot --app-id="$APP_ID" "${CMD[@]}" >/dev/null 2>&1
+else
+  setsid -f ghostty --class="$APP_ID" -e "${CMD[@]}" >/dev/null 2>&1
+fi

@@ -146,7 +146,8 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-export PATH="$GOROOT/bin:$PATH"
+# Only when GOROOT is set: with it empty this prepended /bin, shadowing mise shims (fzf --zsh broke)
+[ -n "$GOROOT" ] && export PATH="$GOROOT/bin:$PATH"
 
 # eval "$(zoxide init --cmd cd zsh)"
 eval "$(zoxide init zsh)" 
