@@ -1,0 +1,258 @@
+/* Waybar style for the sway (work PC) bar. Loaded with `waybar -s`.
+   Palette follows the sway/mako/wofi theme in this repo (Tokyo Night-ish,
+   accent #33ccff, urgent #ff6699). style.css remains the hyprland bar. */
+
+@define-color bg        rgba(26, 27, 38, 0.92);   /* #1a1b26 */
+@define-color bg-alt    rgba(41, 46, 66, 0.9);    /* #292e42 */
+@define-color fg        #c0caf5;
+@define-color fg-dim    #565f89;
+@define-color accent    #33ccff;
+@define-color urgent    #ff6699;
+@define-color green     #9ece6a;
+@define-color yellow    #e0af68;
+@define-color orange    #ff9e64;
+@define-color red       #f7768e;
+@define-color purple    #bb9af7;
+@define-color separator rgba(192, 202, 245, 0.10);
+
+@keyframes blink {
+    to {
+        background-color: @urgent;
+        color: #1a1b26;
+    }
+}
+
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-weight: 600;
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: transparent;
+    color: @fg;
+}
+
+tooltip {
+    background: @bg;
+    border: 1px solid @accent;
+    border-radius: 4px;
+}
+
+tooltip label {
+    color: @fg;
+    padding: 4px;
+}
+
+/* ---------- groups (pills) ---------- */
+.modules-left,
+.modules-center,
+.modules-right {
+    background: @bg;
+    border-radius: 6px;
+    border: 1px solid @separator;
+}
+
+/* ---------- left ---------- */
+#custom-omarchy {
+    color: @orange;
+    font-size: 17px;
+    padding: 0 12px 0 14px;
+}
+
+#clock {
+    padding: 0 12px;
+    border-left: 1px solid @separator;
+}
+
+#mode {
+    color: #1a1b26;
+    background: @yellow;
+    padding: 0 12px;
+    border-radius: 0 6px 6px 0;
+}
+
+#scratchpad {
+    color: @purple;
+    padding: 0 12px;
+    border-left: 1px solid @separator;
+}
+
+#taskbar {
+    padding: 0 6px;
+    border-left: 1px solid @separator;
+}
+
+#taskbar button {
+    padding: 0 6px;
+    border-radius: 4px;
+    transition: none;
+}
+
+#taskbar button.active {
+    background: @bg-alt;
+}
+
+#taskbar button:hover {
+    background: @bg-alt;
+}
+
+/* ---------- workspaces ---------- */
+#workspaces {
+    padding: 0 4px;
+}
+
+#workspaces button {
+    color: @fg-dim;
+    background: transparent;
+    padding: 0 10px;
+    margin: 3px 2px;
+    border-radius: 4px;
+    transition: none;
+}
+
+#workspaces button.persistent {
+    color: @fg-dim;
+}
+
+/* workspace shown on another output */
+#workspaces button.visible {
+    color: @fg;
+    background: @bg-alt;
+}
+
+/* sway uses .focused (hyprland uses .active) */
+#workspaces button.focused,
+#workspaces button.active {
+    color: #1a1b26;
+    background: @accent;
+}
+
+#workspaces button.urgent {
+    color: #ffffff;
+    background: @urgent;
+}
+
+#workspaces button:hover {
+    color: #1a1b26;
+    background: @orange;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* ---------- right ---------- */
+#custom-idle-indicator,
+#custom-dnd-indicator,
+#language,
+#pulseaudio,
+#bluetooth,
+#network,
+#cpu,
+#memory,
+#temperature,
+#disk,
+#battery,
+#tray {
+    padding: 0 11px;
+    border-left: 1px solid @separator;
+}
+
+#custom-idle-indicator,
+#custom-dnd-indicator {
+    color: @orange;
+}
+
+/* first visible item in the right pill has no left rule */
+#custom-idle-indicator {
+    border-left: none;
+}
+
+#language {
+    color: @purple;
+}
+
+#pulseaudio.microphone {
+    color: @green;
+    padding-right: 6px;
+    border-right: none;
+}
+
+#pulseaudio.microphone.source-muted {
+    color: @red;
+}
+
+#pulseaudio:not(.microphone) {
+    border-left: none;
+    padding-left: 6px;
+}
+
+#pulseaudio.muted {
+    color: @fg-dim;
+}
+
+#bluetooth {
+    color: @accent;
+}
+
+#bluetooth.disabled,
+#bluetooth.off {
+    color: @fg-dim;
+}
+
+#network {
+    color: @accent;
+}
+
+#network.disconnected,
+#network.linked {
+    color: @red;
+}
+
+#cpu,
+#memory,
+#temperature,
+#disk {
+    color: @fg;
+}
+
+#temperature.critical,
+#disk.critical {
+    color: @red;
+}
+
+#disk.warning {
+    color: @yellow;
+}
+
+#battery {
+    color: @green;
+}
+
+#battery.charging,
+#battery.plugged {
+    color: @yellow;
+}
+
+#battery.warning:not(.charging) {
+    color: @orange;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+    animation: blink 0.6s linear infinite alternate;
+}
+
+#tray {
+    padding: 0 12px 0 10px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+}

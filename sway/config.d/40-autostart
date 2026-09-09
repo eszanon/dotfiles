@@ -5,7 +5,7 @@ exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CU
 exec dbus-update-activation-environment --systemd DISPLAY WAYLAND_DISPLAY SWAYSOCK XDG_CURRENT_DESKTOP
 
 exec mako
-exec waybar -c ~/.config/waybar/config-sway.jsonc
+exec waybar -c ~/.config/waybar/config-sway.jsonc -s ~/.config/waybar/style-sway.css
 exec swayidle -w
 exec swaybg -c '#1a1b26'
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1

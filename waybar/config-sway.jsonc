@@ -1,173 +1,62 @@
-// Sway variant of config.jsonc (work PC). Shares style.css with the hyprland bar.
+// Sway variant of config.jsonc (work PC). Styled by style-sway.css (launched with -s).
 // Dropped modules whose scripts only exist on the personal machine
-// (weather, khorshididate, updates, omarchy indicators); added tray (Netskope etc.)
+// (weather, khorshididate, updates); added tray (Netskope etc.), mic, idle/DND indicators.
+// Icons are Nerd Font v3 (Material Design nf-md-* / FontAwesome nf-fa-*); JetBrainsMono Nerd Font covers both.
 {
     "layer": "top",
-    "position": "top",
-    // Bar on the main external (Husky) when docked, laptop screen when mobile.
-    // Waybar reacts to hot-plug: each name here gets a bar whenever that output is active.
-    "output": ["HDMI-A-1", "eDP-1"],
-    "mod": "dock",
+    "position": "bottom",
+    // No "output" key: one bar per active output (Husky, AOC, laptop panel).
+    "mode": "dock",
     "exclusive": true,
     "passthrough": false,
     "gtk-layer-shell": true,
-    "height": 20,
-    "margin-right": 5,
-    "margin-left": 5,
+    "height": 34,
+    "spacing": 0,
+    "margin-bottom": 4,
+    "margin-right": 8,
+    "margin-left": 8,
     "modules-left": [
         "custom/omarchy",
         "clock",
+        "sway/mode",
+        "sway/scratchpad",
         "wlr/taskbar"
     ],
     "modules-center": [
         "sway/workspaces"
     ],
     "modules-right": [
+        "custom/idle-indicator",
+        "custom/dnd-indicator",
         "sway/language",
-        "battery",
+        "pulseaudio#microphone",
         "pulseaudio",
         "bluetooth",
+        "network",
         "cpu",
         "memory",
-        "disk",
         "temperature",
-        "network",
+        "disk",
+        "battery",
         "tray"
     ],
+
+    // ---------- left ----------
     "custom/omarchy": {
-        "format": "",
+        "format": "",
         "on-click": "~/.config/sway/bin/omarchy-menu",
-        "tooltip": false
-    },
-    "sway/workspaces": {
-        "disable-scroll": true,
-        "all-outputs": true,
-        "persistent-workspaces": {
-            "1": [],
-            "2": [],
-            "3": [],
-            "4": []
-        }
-    },
-    "wlr/taskbar": {
-        "format": "{icon}",
-        "icon-size": 16,
-        "all-outputs": true,
-        "tooltip-format": "{name}: {title}",
-        "on-click": "activate",
-        "on-click-middle": "close"
-    },
-    "tray": {
-        "icon-size": 12,
-        "spacing": 10
-    },
-    "cpu": {
-        "interval": 10,
-        "format": " {usage}%",
-        "max-length": 10,
-        "format-alt-click": "click-right",
-        "format-alt": " "
-    },
-    "memory": {
-        "interval": 30,
-        "format": " {}%",
-        "format-alt-click": "click-right",
-        "format-alt": "",
-        "max-length": 10,
-        "tooltip": true,
-        "tooltip-format": "Memory - {used:0.1f}GB used",
-    },
-    "disk": {
-        "interval": 600,
-        "format": "󰋊 {percentage_used}%",
-        "path": "/",
-        "format-alt-click": "click-right",
-        "format-alt": "󰋊",
-        "tooltip": true,
-        "tooltip-format": "HDD - {used} used out of {total} on {path} ({percentage_used}%)",
-        "states": {
-            "warning": 85,
-            "critical": 90,
-        },
-    },
-    "temperature": {
-        "thermal-zone": 1,
-        "format": "",
-        "format-alt-click": "click-right",
-        "format-alt": " {temperatureC}°C",
-        "critical-threshold": 70,
-        "format-critical": " {temperatureC}°C",
-    },
-    "battery": {
-        "states": {
-            "good": 95,
-            "warning": 30,
-            "critical": 20
-        },
-        "format": "{icon}",
-        "format-charging": " {capacity}%",
-        "format-plugged": " {capacity}%",
-        "format-alt-click": "click-right",
-        "format-alt": "{icon} {capacity}%",
-        "format-icons": [
-            "󰂎",
-            "󰁺",
-            "󰁻",
-            "󰁼",
-            "󰁽",
-            "󰁾",
-            "󰁿",
-            "󰂀",
-            "󰂁",
-            "󰂂",
-            "󰁹"
-        ]
-    },
-    "pulseaudio": {
-        "format": "{icon} {volume}%",
-        "format-muted": " muted",
-        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-        "on-click-right": "~/.config/sway/bin/launch-tui wiremix",
-        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
-        "on-scroll-down": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%-",
-        "scroll-step": 5,
-        "format-icons": {
-            "headphone": "",
-            "hands-free": "",
-            "headset": "",
-            "phone": "",
-            "portable": "",
-            "car": "",
-            "default": [
-                "",
-                "",
-                ""
-            ]
-        },
-        "tooltip": true,
-        "tooltip-format": "{icon} at {volume}%"
-    },
-    "network": {
-        "format": "{ifname}",
-        "format-wifi": " ",
-        "format-ethernet": " ",
-        "format-disconnected": " ",
-        "tooltip-format": " {ifname} via {gwaddr}",
-        "tooltip-format-wifi": " {essid} ({signalStrength}%)",
-        "tooltip-format-ethernet": " {ifname} {ipaddr}/{cidr}",
-        "tooltip-format-disconnected": "Disconnected",
-        "max-length": 50,
-        "on-click": "~/.config/sway/bin/launch-tui nmtui"
+        "tooltip-format": "Menu  ·  Super + Alt + Space"
     },
     "clock": {
         "timezone": "America/Sao_Paulo",
-        "format": "{:%B %e | %H:%M}",
-        "tooltip": true,
+        "format": "󰥔 {:%a %d %b  %H:%M}",
         "tooltip-format": "<span size='13pt' font='JetBrainsMono Nerd Font'>{calendar}</span>",
         "calendar": {
             "mode": "month",
+            "weeks-pos": "right",
             "format": {
-                "today": "<span color='#ff6699'><b><u>{}</u></b></span>"
+                "today": "<span color='#33ccff'><b><u>{}</u></b></span>",
+                "weeks": "<span color='#565f89'>W{}</span>"
             },
             "actions": {
                 "on-click-right": "mode",
@@ -176,16 +65,159 @@
             }
         }
     },
+    "sway/mode": {
+        "format": " {}",
+        "tooltip": false
+    },
+    "sway/scratchpad": {
+        "format": " {count}",
+        "show-empty": false,
+        "tooltip": true,
+        "tooltip-format": "{app}: {title}"
+    },
+    "wlr/taskbar": {
+        "format": "{icon}",
+        "icon-size": 18,
+        "all-outputs": false,
+        "tooltip-format": "{name}: {title}",
+        "on-click": "activate",
+        "on-click-middle": "close"
+    },
+
+    // ---------- center ----------
+    "sway/workspaces": {
+        "disable-scroll": true,
+        "all-outputs": true,
+        "format": "{name}",
+        "persistent-workspaces": {
+            "1": [],
+            "2": [],
+            "3": [],
+            "4": []
+        }
+    },
+
+    // ---------- right ----------
+    "custom/idle-indicator": {
+        "exec": "~/.config/waybar/scripts/sway-idle-indicator.sh",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 9,
+        "on-click": "~/.config/sway/bin/toggle-idle"
+    },
+    "custom/dnd-indicator": {
+        "exec": "~/.config/waybar/scripts/sway-dnd-indicator.sh",
+        "return-type": "json",
+        "interval": "once",
+        "signal": 10,
+        "on-click": "~/.config/sway/bin/toggle-notifications"
+    },
     "sway/language": {
-        "format": "{short}",
+        "format": "󰌌 {short}",
+        "tooltip-format": "{long}\nclick: next layout",
         "on-click": "swaymsg input type:keyboard xkb_switch_layout next"
     },
+    "pulseaudio#microphone": {
+        "format": "{format_source}",
+        "format-source": "󰍬 {volume}%",
+        "format-source-muted": "󰍭",
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+        "on-click-right": "~/.config/sway/bin/launch-tui wiremix",
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SOURCE@ 5%+",
+        "on-scroll-down": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SOURCE@ 5%-",
+        "tooltip-format": "Microphone {source_volume}%\nclick: mute  ·  right: wiremix"
+    },
+    "pulseaudio": {
+        "format": "{icon} {volume}%",
+        "format-bluetooth": "{icon}󰂯 {volume}%",
+        "format-muted": "󰝟 {volume}%",
+        "format-icons": {
+            "headphone": "󰋋",
+            "hands-free": "󰋎",
+            "headset": "󰋎",
+            "phone": "󰏲",
+            "portable": "󰦧",
+            "car": "󰄋",
+            "default": ["󰕿", "󰖀", "󰕾"]
+        },
+        "scroll-step": 5,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "~/.config/sway/bin/launch-tui wiremix",
+        "on-scroll-up": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+",
+        "on-scroll-down": "wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%-",
+        "tooltip-format": "{desc}\n{volume}%  ·  click: mute  ·  right: wiremix"
+    },
     "bluetooth": {
-        "format": "",
+        "format": "󰂯",
+        "format-connected": "󰂱 {num_connections}",
         "format-disabled": "󰂲",
-        "format-connected": "󰂱",
         "format-no-controller": "",
-        "tooltip-format": "Devices connected: {num_connections}",
+        "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+        "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+        "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+        "tooltip-format-enumerate-connected-battery": "{device_alias}\t{device_address}\t{device_battery_percentage}%",
         "on-click": "~/.config/sway/bin/launch-tui bluetui"
+    },
+    "network": {
+        "format": "{ifname}",
+        "format-wifi": "󰤨 {essid}",
+        "format-ethernet": "󰈀",
+        "format-linked": "󰤫",
+        "format-disconnected": "󰤭",
+        "max-length": 24,
+        "tooltip-format": "{ifname} via {gwaddr}",
+        "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ifname}  {ipaddr}/{cidr}\n󰇚 {bandwidthDownBytes}  󰕒 {bandwidthUpBytes}",
+        "tooltip-format-ethernet": "{ifname}  {ipaddr}/{cidr}\n󰇚 {bandwidthDownBytes}  󰕒 {bandwidthUpBytes}",
+        "tooltip-format-disconnected": "Disconnected",
+        "on-click": "~/.config/sway/bin/launch-tui nmtui"
+    },
+    "cpu": {
+        "interval": 5,
+        "format": "󰻠 {usage}%",
+        "tooltip": true,
+        "on-click": "~/.config/sway/bin/launch-tui btop"
+    },
+    "memory": {
+        "interval": 10,
+        "format": "󰍛 {percentage}%",
+        "tooltip-format": "RAM {used:0.1f} / {total:0.1f} GiB\nswap {swapUsed:0.1f} / {swapTotal:0.1f} GiB",
+        "on-click": "~/.config/sway/bin/launch-tui btop"
+    },
+    "temperature": {
+        // CPU package sensor (coretemp) instead of a numbered thermal zone (zone 1 was the skin sensor)
+        "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+        "input-filename": "temp1_input",
+        "interval": 5,
+        "format": "󰔏 {temperatureC}°",
+        "format-critical": "󱃂 {temperatureC}°",
+        "critical-threshold": 85,
+        "tooltip-format": "CPU package {temperatureC}°C"
+    },
+    "disk": {
+        "interval": 600,
+        "path": "/",
+        "format": "󰋊 {percentage_used}%",
+        "tooltip-format": "{used} used of {total} on {path} ({percentage_used}%)\n{free} free",
+        "states": {
+            "warning": 85,
+            "critical": 90
+        }
+    },
+    "battery": {
+        "interval": 30,
+        "states": {
+            "good": 95,
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
+        "format-plugged": "󰚥 {capacity}%",
+        "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+        "tooltip-format": "{timeTo}\n{power:0.1f} W"
+    },
+    "tray": {
+        "icon-size": 16,
+        "spacing": 8
     }
 }

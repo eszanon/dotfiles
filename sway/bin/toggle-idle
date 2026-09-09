@@ -3,7 +3,9 @@
 if pgrep -x swayidle >/dev/null; then
   pkill -x swayidle
   notify-send -u low "󱫖  Stop locking computer when idle"
+  pkill -RTMIN+9 -x waybar
 else
   setsid -f swayidle -w >/dev/null 2>&1
   notify-send -u low "󱫖  Now locking computer when idle"
+  pkill -RTMIN+9 -x waybar
 fi

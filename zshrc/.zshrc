@@ -151,7 +151,7 @@ export PATH="$GOROOT/bin:$PATH"
 # eval "$(zoxide init --cmd cd zsh)"
 eval "$(zoxide init zsh)" 
 # eval "$(atuin init zsh --disable-up-arrow)"
-eval "$(mise activate zsh)"
+eval "$(zoxide init --cmd cd zsh)"
 
 # Set up fzf key bindings and fuzzy completion
 source <(fzf --zsh)
