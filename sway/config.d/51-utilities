@@ -46,7 +46,7 @@ bindsym $mod+Ctrl+Alt+b exec notify-send -u low "  Battery: $(cat /sys/class/pow
 # Control panels
 bindsym $mod+Ctrl+a exec $bin/launch-tui wiremix
 bindsym $mod+Ctrl+b exec $bin/launch-tui bluetui
-bindsym $mod+Ctrl+w exec $bin/launch-tui nmtui
+bindsym $mod+Ctrl+w exec $bin/menu-network
 bindsym $mod+Ctrl+t exec $bin/launch-tui btop
 
 # Lock system

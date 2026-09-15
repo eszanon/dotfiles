@@ -1,0 +1,212 @@
+#!/bin/bash
+# SUPER+Ctrl+W and the waybar network click: quick network menu on wofi, backed
+# by nmcli. Replaces dropping the user into nmtui for the everyday cases
+# (pick a Wi-Fi, disconnect, toggle the radio, bring a VPN/ethernet profile up).
+#
+# Why nmcli and not impala like Omarchy: NetworkManager here uses iwd as the
+# Wi-Fi backend, but iwd's D-Bus policy only admits root/netdev and domain
+# users are not in netdev, so iwctl/impala just hang. NetworkManager's own
+# policy grants network-control and modify.own without a polkit prompt, so
+# everything goes through nmcli. New Wi-Fi profiles are created user-scoped
+# (connection.permissions) to stay inside modify.own.
+#
+# Usage: menu-network [list]   (list = print the main menu entries and exit)
+BIN="$(dirname "$0")"
+export PATH="$PATH:/usr/sbin:/sbin" # rfkill lives in /usr/sbin on Ubuntu
+
+ICONS=(󰤯 󰤟 󰤢 󰤥 󰤨)
+SEP="────────────────────────────────"
+
+menu() { # menu <prompt> <height> <<< entries
+  wofi --dmenu --insensitive --prompt "$1" --width 520 --height "${2:-420}"
+}
+
+notify() { notify-send -u low -h string:x-canonical-private-synchronous:menu-network "$@"; }
+
+wifi_dev() { nmcli -t -f DEVICE,TYPE device status | awk -F: '$2=="wifi"{print $1; exit}'; }
+
+# Deduplicated Wi-Fi list, one SSID per line: "<inuse>\t<signal>\t<security>\t<ssid>"
+# SSID is requested last so a ':' inside it (escaped as '\:' by -t) can't break the split.
+wifi_scan() { # wifi_scan [yes|no|auto]
+  nmcli -t -f IN-USE,SIGNAL,SECURITY,SSID dev wifi list --rescan "${1:-auto}" 2>/dev/null |
+    awk -F: '{
+      inuse=$1; sig=$2; sec=$3
+      ssid=$4; for (i=5;i<=NF;i++) ssid=ssid ":" $i
+      gsub(/\\:/, ":", ssid)
+      if (ssid=="" || seen[ssid]++) next
+      printf "%s\t%s\t%s\t%s\n", (inuse=="*"?"*":"-"), sig, sec, ssid
+    }' | sort -t$'\t' -k1,1 -k2,2nr
+}
+
+signal_icon() { # signal_icon <0-100>
+  local i=$(($1 / 25)); ((i > 4)) && i=4
+  printf '%s' "${ICONS[$i]}"
+}
+
+# Saved profile whose SSID matches, if any
+profile_for_ssid() { # profile_for_ssid <ssid>
+  local name
+  while IFS= read -r name; do
+    [[ $(nmcli -g 802-11-wireless.ssid connection show "$name" 2>/dev/null) == "$1" ]] && { printf '%s' "$name"; return; }
+  done < <(nmcli -g NAME,TYPE connection show | awk -F: '$2=="802-11-wireless"{print $1}' | sed 's/\\:/:/g')
+}
+
+status_line() {
+  local dev=$1 radio conn ip
+  radio=$(nmcli -g WIFI radio)
+  if [[ $radio != enabled ]]; then
+    printf '󰤮  Wi-Fi is off'
+    return
+  fi
+  conn=$(nmcli -g GENERAL.CONNECTION device show "$dev" 2>/dev/null | sed 's/\\:/:/g')
+  if [[ -n $conn && $conn != "--" ]]; then
+    ip=$(nmcli -g IP4.ADDRESS device show "$dev" 2>/dev/null | head -1 | cut -d/ -f1)
+    printf '󰤨  %s  ·  %s' "$conn" "${ip:-no IP}"
+  else
+    printf '󰤭  Wi-Fi not connected'
+  fi
+}
+
+main_entries() {
+  local dev=$1 inuse sig sec ssid mark lock
+  status_line "$dev"; echo
+  echo "$SEP"
+  if [[ $(nmcli -g WIFI radio) == enabled ]]; then
+    while IFS=$'\t' read -r inuse sig sec ssid; do
+      mark="  "; [[ $inuse == "*" ]] && mark="󰄬 "
+      lock=""; [[ -n $sec && $sec != "--" ]] && lock="󰌾"
+      printf '%s%s  %-28s %3s%%  %s\n' "$mark" "$(signal_icon "$sig")" "$ssid" "$sig" "$lock"
+    done < <(wifi_scan auto)
+    echo "$SEP"
+    echo "󰑐  Rescan"
+    [[ $(status_line "$dev") == 󰤨* ]] && echo "󰤮  Disconnect Wi-Fi"
+    echo "󰖪  Turn Wi-Fi off"
+  else
+    echo "󰖩  Turn Wi-Fi on"
+  fi
+  echo "󰌘  Connections (ethernet / VPN / saved)"
+  echo "󰆴  Forget a saved Wi-Fi"
+  echo "󰒓  Advanced (nmtui)"
+}
+
+connect_wifi() { # connect_wifi <dev> <ssid> <security>
+  local dev=$1 ssid=$2 sec=$3 profile pw keymgmt out
+  profile=$(profile_for_ssid "$ssid")
+  if [[ -n $profile ]]; then
+    notify "󰤨  Connecting to $ssid…"
+    if out=$(nmcli connection up "$profile" 2>&1); then
+      notify "󰤨  Connected to $ssid"
+    else
+      notify -u normal "󰤮  Failed to connect to $ssid" "${out#Error: }"
+    fi
+    return
+  fi
+
+  case $sec in
+  *802.1X*)
+    notify "󰒓  $ssid needs enterprise (802.1X) setup" "Opening nmtui to configure it."
+    exec "$BIN/launch-tui" "$BIN/nmtui"
+    ;;
+  *WEP*) keymgmt=none ;; # nmcli will still ask for a key; rare enough to punt to nmtui
+  *WPA3*) [[ $sec == *WPA2* ]] && keymgmt=wpa-psk || keymgmt=sae ;;
+  *WPA*) keymgmt=wpa-psk ;;
+  *) keymgmt="" ;;
+  esac
+  [[ $keymgmt == none ]] && { notify "󰒓  WEP network" "Opening nmtui to configure $ssid."; exec "$BIN/launch-tui" "$BIN/nmtui"; }
+
+  local -a add=(connection add type wifi con-name "$ssid" ifname "$dev" ssid "$ssid"
+    connection.permissions "user:$USER")
+  if [[ -n $keymgmt ]]; then
+    pw=$(wofi --dmenu --password --prompt "Password for $ssid" --width 520 --lines 1) || return
+    [[ -z $pw ]] && return
+    add+=(wifi-sec.key-mgmt "$keymgmt" wifi-sec.psk "$pw")
+  fi
+
+  notify "󰤨  Connecting to $ssid…"
+  if ! out=$(nmcli "${add[@]}" 2>&1); then
+    notify -u normal "󰤮  Could not save $ssid" "${out#Error: }"
+    return
+  fi
+  if out=$(nmcli connection up "$ssid" 2>&1); then
+    notify "󰤨  Connected to $ssid"
+  else
+    nmcli connection delete "$ssid" >/dev/null 2>&1 # don't leave a broken profile behind
+    notify -u normal "󰤮  Failed to connect to $ssid" "${out#Error: }"
+  fi
+}
+
+# tun profiles are skipped: NetworkManager only tracks them "externally" (the
+# ZTNA client owns sta0), so up/down from here would be meaningless or harmful.
+show_connections() {
+  local entries name type dev choice out
+  entries=$(nmcli -t -f NAME,TYPE,DEVICE connection show |
+    awk -F: '$2!="802-11-wireless" && $2!="loopback" && $2!="tun" {
+      mark = ($3!="" ? "󰄬 " : "  ")
+      sub(/^802-3-/, "", $2)
+      printf "%s%-28s %s\n", mark, $1, $2
+    }' | sed 's/\\:/:/g')
+  [[ -z $entries ]] && { notify "No ethernet/VPN profiles saved"; return; }
+  choice=$(menu "Connections" 320 <<<"$entries") || return
+  name=$(sed -E 's/^(󰄬 |  )//; s/ +[^ ]+$//; s/ +$//' <<<"$choice")
+  [[ -z $name ]] && return
+  if [[ $choice == 󰄬* ]]; then
+    out=$(nmcli connection down "$name" 2>&1) && notify "󰌙  $name is down" || notify -u normal "Could not bring $name down" "${out#Error: }"
+  else
+    out=$(nmcli connection up "$name" 2>&1) && notify "󰌘  $name is up" || notify -u normal "Could not bring $name up" "${out#Error: }"
+  fi
+}
+
+show_forget() {
+  local entries choice out
+  entries=$(nmcli -g NAME,TYPE connection show | awk -F: '$2=="802-11-wireless"{print $1}' | sed 's/\\:/:/g')
+  [[ -z $entries ]] && { notify "No saved Wi-Fi networks"; return; }
+  choice=$(menu "Forget Wi-Fi" 320 <<<"$entries") || return
+  [[ -z $choice ]] && return
+  out=$(nmcli connection delete "$choice" 2>&1) && notify "󰆴  Forgot $choice" || notify -u normal "Could not forget $choice" "${out#Error: }"
+}
+
+show_details() { # show_details <dev>
+  local info
+  info=$(nmcli -f GENERAL.CONNECTION,IP4.ADDRESS,IP4.GATEWAY,IP4.DNS device show "$1" 2>/dev/null |
+    sed -E 's/^[A-Z0-9.]+:[[:space:]]+//' | paste -sd'\n')
+  notify "Wi-Fi details" "$info"
+}
+
+main() {
+  local dev choice ssid sig sec inuse
+  dev=$(wifi_dev)
+  [[ -z $dev ]] && { notify -u normal "No Wi-Fi device found" "Opening nmtui instead."; exec "$BIN/launch-tui" "$BIN/nmtui"; }
+
+  choice=$(main_entries "$dev" | menu "Network" 560) || exit 0
+  case $choice in
+  "$SEP" | "") exit 0 ;;
+  󰤨*) show_details "$dev" ;;
+  "󰤮  Wi-Fi is off" | "󰤭  Wi-Fi not connected") exit 0 ;;
+  "󰑐  Rescan") wifi_scan yes >/dev/null; exec "$0" ;;
+  "󰤮  Disconnect Wi-Fi")
+    conn=$(nmcli -g GENERAL.CONNECTION device show "$dev" | sed 's/\\:/:/g')
+    nmcli connection down "$conn" >/dev/null 2>&1 && notify "󰤮  Disconnected from $conn"
+    ;;
+  "󰖪  Turn Wi-Fi off") nmcli radio wifi off && notify "󰖪  Wi-Fi off" ;;
+  "󰖩  Turn Wi-Fi on") rfkill unblock wifi 2>/dev/null; nmcli radio wifi on && notify "󰖩  Wi-Fi on" ;;
+  "󰌘  Connections"*) show_connections ;;
+  "󰆴  Forget a saved Wi-Fi") show_forget ;;
+  "󰒓  Advanced (nmtui)") exec "$BIN/launch-tui" "$BIN/nmtui" ;;
+  *)
+    # A network row: "<mark><icon>  <ssid padded>  <sig>%  <lock>". Recover the SSID by
+    # matching the row back against the scan instead of parsing the padded text.
+    while IFS=$'\t' read -r inuse sig sec ssid; do
+      if [[ $choice == *"  $ssid "* ]]; then
+        [[ $inuse == "*" ]] && { show_details "$dev"; exit 0; }
+        connect_wifi "$dev" "$ssid" "$sec"
+        exit 0
+      fi
+    done < <(wifi_scan no)
+    ;;
+  esac
+}
+
+case "${1:-}" in
+list) main_entries "$(wifi_dev)" ;;
+*) main ;;
+esac

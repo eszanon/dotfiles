@@ -1,0 +1,32 @@
+#!/bin/bash
+# nmtui with a dark palette. Stock newt paints its root window blue and the
+# dialogs lightgray/red; with foot's default 16-color palette that comes out
+# as a bright pink field around a grey box. NEWT_COLORS repaints it to sit on
+# the terminal background like the other TUIs (wiremix, bluetui).
+# Launched via `launch-tui $bin/nmtui` so the window keeps the org.omarchy.nmtui app id.
+export NEWT_COLORS='
+root=,black
+roottext=lightgray,black
+border=brightcyan,black
+window=white,black
+shadow=black,black
+title=brightcyan,black
+label=white,black
+listbox=white,black
+actlistbox=black,brightcyan
+sellistbox=brightcyan,black
+actsellistbox=black,brightcyan
+button=black,brightcyan
+actbutton=black,white
+compactbutton=white,black
+checkbox=white,black
+actcheckbox=black,brightcyan
+entry=white,black
+disentry=gray,black
+textbox=white,black
+acttextbox=black,brightcyan
+helpline=lightgray,black
+emptyscale=,black
+fullscale=,brightcyan
+'
+exec /usr/bin/nmtui "$@"

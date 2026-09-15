@@ -9,7 +9,7 @@ for_window [app_id="org.gnome.Calculator"] floating enable
 for_window [app_id="nm-connection-editor"] floating enable
 for_window [app_id="blueman-manager"] floating enable
 for_window [app_id="pavucontrol"] floating enable
-# TUIs spawned by launch-tui (wiremix, bluetui, nmtui, btop) float like on Omarchy
+# TUIs spawned by launch-tui (wiremix, bluetui, nmtui via bin/nmtui, btop) float like on Omarchy
 for_window [app_id="^org\.omarchy\."] floating enable
 # btop (waybar cpu/memory click, $mod+Shift+t) needs room for its panels: fill most of the screen, centered
 for_window [app_id="^org\.omarchy\.btop$"] resize set 85 ppt 85 ppt, move position center

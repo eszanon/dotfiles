@@ -43,6 +43,7 @@ alias v="nvim"
 alias vi="nvim"
 alias vim="nvim"
 alias t="tmux attach || tmux new -s main"
+alias mu="mise upgrade"
 
 # Git
 alias gc="git commit -m"
@@ -94,6 +95,8 @@ alias kns="kubens"
 alias kl="kubectl logs -f"
 alias ke="kubectl exec -it"
 alias kcns='kubectl config set-context --current --namespace'
+# kx / kt / kmgmt / kwhich: per-shell KUBECONFIG pickers for CAPI mgmt and tenant clusters
+[ -f ~/.config/zshrc/kube.zsh ] && source ~/.config/zshrc/kube.zsh
 
 # HTTP requests with xh!
 # alias http="xh"

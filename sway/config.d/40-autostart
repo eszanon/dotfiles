@@ -22,7 +22,9 @@ exec ~/.local/bin/autotiling
 # ~/.config/solaar/rules.yaml runs capture-screenshot.
 # Full path: pip-installed 1.1.20 in ~/.local — the apt 1.1.11 crashes applying
 # MX Keys S settings (TypeError in validate_read) and never diverts the key.
-exec ~/.local/bin/solaar --window=hide
+# Runs as a systemd user service (sway/systemd/solaar.service) so it is restarted
+# if it dies. Env import on the same line: /etc/sway/config.d runs after us.
+exec systemctl --user import-environment DISPLAY WAYLAND_DISPLAY SWAYSOCK && systemctl --user restart solaar.service
 
 # Clipboard history for SUPER+CTRL+V
 exec wl-paste --type text --watch cliphist store

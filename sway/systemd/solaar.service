@@ -1,0 +1,11 @@
+# Solaar as a supervised user service: when it dies (receiver re-enumeration,
+# suspend, crash) the MX Keys S screenshot key dies with it, since the key only
+# reaches us through Solaar's HID++ diversion (see sway/config.d/40-autostart).
+# Linked to ~/.config/systemd/user/solaar.service; started from sway autostart.
+[Unit]
+Description=Solaar (Logitech HID++) - keeps the MX Keys S screenshot key diverted
+
+[Service]
+ExecStart=%h/.local/bin/solaar --window=hide
+Restart=always
+RestartSec=3

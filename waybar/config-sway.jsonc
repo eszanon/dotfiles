@@ -169,7 +169,8 @@
         "tooltip-format-wifi": "{essid} ({signalStrength}%)\n{ifname}  {ipaddr}/{cidr}\n󰇚 {bandwidthDownBytes}  󰕒 {bandwidthUpBytes}",
         "tooltip-format-ethernet": "{ifname}  {ipaddr}/{cidr}\n󰇚 {bandwidthDownBytes}  󰕒 {bandwidthUpBytes}",
         "tooltip-format-disconnected": "Disconnected",
-        "on-click": "~/.config/sway/bin/launch-tui nmtui"
+        "on-click": "~/.config/sway/bin/menu-network",
+        "on-click-right": "~/.config/sway/bin/launch-tui ~/.config/sway/bin/nmtui"
     },
     "cpu": {
         "interval": 5,
