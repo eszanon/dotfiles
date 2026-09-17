@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# dex-ldap-login — substitui o navegador no login OIDC do kubelogin (kubectl oidc-login).
+#
+# Uso no kubeconfig:  - --browser-command=dex-ldap-login
+# Senha no keyring:   keyring set dex-ldap "$USER"
+#
+# O kubelogin chama este script com a URL do seu servidor local (http://localhost:8000),
+# que redireciona para o /auth do Dex. O script segue o
+# redirect até o formulário LDAP, faz o POST de usuário/senha e segue o redirect
+# final até o callback http://localhost:8000 que o kubelogin já está escutando.
+# Em qualquer falha cai para o navegador normal, então nunca trava o kubectl.
+set -euo pipefail
+
+url="${1:?uso: dex-ldap-login <authorization-url>}"
+user="${DEX_LDAP_USER:-$USER}"
+service="${DEX_LDAP_KEYRING_SERVICE:-dex-ldap}"
+
+fallback() {
+  echo "dex-ldap-login: $*. Abrindo o navegador." >&2
+  exec xdg-open "$url"
+}
+
+password="$(keyring get "$service" "$user" 2>/dev/null || true)"
+[ -n "$password" ] || fallback "senha não encontrada no keyring (rode: keyring set $service $user)"
+
+jar="$(mktemp)"
+trap 'rm -f "$jar"' EXIT
+
+# 1. O kubelogin passa http://localhost:8000; o servidor local dele redireciona para
+#    o /auth do Dex, que redireciona para /auth/<connector>/login?back=&state=<req>.
+login_url="$(curl -sS -L -c "$jar" -b "$jar" -o /dev/null -w '%{url_effective}' "$url")"
+case "$login_url" in
+  http*://*/auth/*/login*) ;;
+  *) fallback "fluxo inesperado: url recebida=$url, parou em $login_url" ;;
+esac
+
+# 2. POST login/password. Com skipApprovalScreen o Dex redireciona direto para o
+#    redirect_uri do kubelogin. A senha vai por fd, não pela linha de comando.
+final="$(curl -sS -L -c "$jar" -b "$jar" -o /dev/null -w '%{url_effective}' \
+  --data-urlencode "login=$user" \
+  --data-urlencode "password@/dev/fd/3" \
+  "$login_url" 3< <(printf '%s' "$password"))"
+
+case "$final" in
+  http://localhost:*|http://127.0.0.1:*) exit 0 ;;
+  *) fallback "login LDAP recusado (parou em $final)" ;;
+esac

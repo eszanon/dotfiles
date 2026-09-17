@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# kube-oidc-fix — garante que todo kubeconfig de gerência (kubectl oidc-login / Dex)
+# tenha as flags que dispensam o navegador:
+#   --oidc-extra-scope=offline_access   (refresh token, renova sem relogar)
+#   --browser-command=dex-ldap-login    (login LDAP via keyring, sem navegador)
+#
+# Uso: kube-oidc-fix [kubeconfig...]     sem argumentos: todos os mgmt em $KUBE_DIR
+#      kube-oidc-fix -n [kubeconfig...]  só mostra o que faria
+# Idempotente e silencioso quando não há nada a corrigir. É chamado automaticamente
+# por _kube_export (zshrc/kube.zsh) ao selecionar um kubeconfig com kmgmt/kx.
+set -euo pipefail
+
+KUBE_DIR="${KUBE_DIR:-$HOME/.kube}"
+KUBE_MGMT_EXCLUDE="${KUBE_MGMT_EXCLUDE:-config|hosting-config|cache|tenants}"
+WANTED=(--oidc-extra-scope=offline_access --browser-command=dex-ldap-login)
+
+dry=0
+[[ "${1:-}" == "-n" ]] && { dry=1; shift; }
+
+files=("$@")
+if (( ${#files[@]} == 0 )); then
+  while IFS= read -r f; do files+=("$KUBE_DIR/$f"); done < <(
+    find "$KUBE_DIR" -mindepth 1 -maxdepth 1 -type f ! -name '.*' ! -name '*.bak' -printf '%f\n' \
+      | grep -Ev "^(${KUBE_MGMT_EXCLUDE})$" | sort)
+fi
+
+rc=0
+for f in "${files[@]}"; do
+  [[ -s "$f" ]] || continue
+  # usuários cujo exec roda "oidc-login": nome + args (JSON) por linha
+  while IFS=$'\t' read -r name args; do
+    missing=()
+    for w in "${WANTED[@]}"; do
+      jq -e --arg w "$w" 'index($w)' <<<"$args" >/dev/null || missing+=("$w")
+    done
+    (( ${#missing[@]} )) || continue
+
+    echo "kube-oidc-fix: $f [$name] +${missing[*]}"
+    (( dry )) && continue
+
+    # set-credentials --exec-arg substitui a lista inteira; reenvia as atuais + faltantes
+    execargs=()
+    while IFS= read -r a; do execargs+=(--exec-arg="$a"); done < <(jq -r '.[]' <<<"$args")
+    for w in "${missing[@]}"; do execargs+=(--exec-arg="$w"); done
+    kubectl --kubeconfig "$f" config set-credentials "$name" "${execargs[@]}" >/dev/null || rc=1
+  done < <(kubectl --kubeconfig "$f" config view --raw -o json 2>/dev/null \
+    | jq -r '.users[]? | select(.user.exec.args? // [] | index("oidc-login")) | [.name, (.user.exec.args|tojson)] | @tsv')
+done
+exit $rc

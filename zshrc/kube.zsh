@@ -13,6 +13,9 @@
 #   kmgmt [query]                     pick a mgmt kubeconfig only
 #   kwhich                            show the current KUBECONFIG, context and server
 #   kunset                            drop KUBECONFIG from this shell
+#
+# Selecting a mgmt kubeconfig runs sway/bin/kube-oidc-fix on it, which adds the
+# oidc-login flags that avoid the browser (offline_access + dex-ldap-login) if missing.
 
 _KUBE_ZSH_FILE="${(%):-%x}"   # this file, so fzf previews can re-source it in a subshell
 export KUBE_DIR="${KUBE_DIR:-$HOME/.kube}"
@@ -56,6 +59,8 @@ _kube_pick() {
 }
 
 _kube_export() {
+  # mgmt kubeconfigs: keep the no-browser OIDC flags in place (sway/bin/kube-oidc-fix)
+  [[ "$1" != "$KUBE_TENANTS_DIR"/* ]] && (( $+commands[kube-oidc-fix] )) && kube-oidc-fix "$1"
   export KUBECONFIG="$1"
   echo "KUBECONFIG=$KUBECONFIG"
 }
