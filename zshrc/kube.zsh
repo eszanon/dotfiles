@@ -11,6 +11,9 @@
 #   kt [-f] [mgmt-query] [cluster-query...]
 #                                     pick a mgmt, list its CAPI Clusters, pull the tenant kubeconfig, export
 #   kmgmt [query]                     pick a mgmt kubeconfig only
+#   k9x [query]                       kx, then open k9s on it (KUBECONFIG stays exported after quitting)
+#   k9t [-f] [mgmt-query] [cluster-query...]
+#                                     kt, then open k9s on it
 #   kwhich                            show the current KUBECONFIG, context and server
 #   kunset                            drop KUBECONFIG from this shell
 #
@@ -132,3 +135,8 @@ kwhich() {
 }
 
 kunset() { unset KUBECONFIG; echo "KUBECONFIG unset"; }
+
+# Same selection as kx / kt, then k9s on the result. k9s reads KUBECONFIG, and
+# the export survives quitting k9s so kubectl already points at the cluster.
+k9x() { kx "$@" && k9s; }
+k9t() { kt "$@" && k9s; }

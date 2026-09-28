@@ -12,6 +12,12 @@ sudo apt install -y \
   python3-i3ipc fonts-jetbrains-mono jq tesseract-ocr pngquant \
   pkg-config libpipewire-0.3-dev libdbus-1-dev clang
 
+echo "==> Granting backlight write access (brightnessctl is not setuid on Ubuntu)"
+# The AD/SSSD user is not in the local 'video' group, which owns
+# /sys/class/backlight/*/brightness (udev 90-brightnessctl.rules). usermod
+# refuses non-local users, so use gpasswd. Takes effect on next login.
+sudo gpasswd -a "$USER" video
+
 echo "==> Building swappy (screenshot annotation; not packaged on noble)"
 sudo apt install -y meson ninja-build scdoc gettext libgtk-3-dev
 SWAPPY_SRC=$(mktemp -d)
