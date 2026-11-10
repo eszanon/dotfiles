@@ -6,18 +6,16 @@ hl.config({
     -- has to be a Latin one for SUPER + W and friends to fire.
     kb_layout = "br,us",
 
-    -- kb_options replaces Omarchy's default string rather than adding to it,
-    -- so the two defaults are repeated here:
-    --   compose:caps                 CapsLock is the compose key
-    --   shift:both_capslock_cancel   both Shifts toggle CapsLock, one cancels
+    -- kb_options replaces Omarchy's default string rather than adding to it.
+    --   compose:caps         CapsLock is the compose key (Omarchy default)
+    --   grp:alt_shift_toggle Alt+Shift switches layout
     --
-    -- Layout switch is on both Alts, not Alt+Shift: shift:both_capslock_cancel
-    -- puts Caps_Lock on level 2 of each Shift, which is exactly the slot
-    -- grp:alt_shift_toggle needs for ISO_Next_Group. The two cancel out, and
-    -- the Shift option wins. grp:alts_toggle sits on the Alt keys instead and
-    -- coexists with it. Verify with:
+    -- Omarchy's other default, shift:both_capslock_cancel, is dropped on
+    -- purpose: it puts Caps_Lock on level 2 of each Shift, the same slot
+    -- grp:alt_shift_toggle needs for ISO_Next_Group, so Alt-then-Shift stops
+    -- switching. Side effect: there is no CapsLock at all. Verify with:
     --   xkbcli compile-keymap --layout br,us --options "<options>" | grep -A3 "key <LFSH>"
-    kb_options = "compose:caps,shift:both_capslock_cancel,grp:alts_toggle",
+    kb_options = "compose:caps,grp:alt_shift_toggle",
 
     touchpad = {
       -- Natural (inverse) scrolling. Omarchy's default is false.
