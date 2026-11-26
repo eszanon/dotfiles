@@ -1,6 +1,6 @@
 [submodule "work"]
 	path = work
-	url = https://github.com/eszanon/dotfiles-mcloud.git
+	url = https://github.com/eszanon/dotfiles-work.git
 [submodule "personal"]
 	path = personal
 	url = https://github.com/eszanon/dotfiles-personal.git
