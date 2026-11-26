@@ -198,3 +198,6 @@ if command -v mise >/dev/null 2>&1 ; then
         PATH="$GO_MISE_BIN:$PATH"
     fi
 fi
+
+# Machine-specific overrides (not tracked)
+[ -f ~/.zshrc.local ] && source ~/.zshrc.local
